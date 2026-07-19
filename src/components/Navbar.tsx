@@ -18,6 +18,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [mega, setMega] = useState(false);
+  const [hasLogo, setHasLogo] = useState(true);
   const { theme, toggle } = useTheme();
   const location = useLocation();
 
@@ -43,12 +44,26 @@ export default function Navbar() {
     >
       <nav className="container-page flex h-16 items-center justify-between md:h-20">
         <Link to="/" className="group flex items-center gap-2.5">
-          <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-violet-600 text-white shadow-lg shadow-brand-500/30 transition-transform group-hover:scale-105">
-            <Cpu className="h-5 w-5" strokeWidth={2.5} />
-          </span>
-          <span className="font-display text-lg font-bold tracking-tight text-ink-900 dark:text-white">
-            ARRJS<span className="text-brand-500 dark:text-brand-400">.</span>
-          </span>
+          {hasLogo ? (
+            <picture>
+              <source srcSet="/assets/logo/logo.svg" type="image/svg+xml" />
+              <img
+                src="/assets/logo/logo.png"
+                alt="ARRJS logo"
+                className="h-9 w-auto rounded-xl object-contain"
+                onError={() => setHasLogo(false)}
+              />
+            </picture>
+          ) : (
+            <>
+              <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-violet-600 text-white shadow-lg shadow-brand-500/30 transition-transform group-hover:scale-105">
+                <Cpu className="h-5 w-5" strokeWidth={2.5} />
+              </span>
+              <span className="font-display text-lg font-bold tracking-tight text-ink-900 dark:text-white">
+                ARRJS<span className="text-brand-500 dark:text-brand-400">.</span>
+              </span>
+            </>
+          )}
         </Link>
 
         <div className="hidden items-center gap-1 lg:flex">
