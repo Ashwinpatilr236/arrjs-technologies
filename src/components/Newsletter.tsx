@@ -1,23 +1,11 @@
 import { useState } from 'react';
-import { supabase } from '../lib/supabase';
 import { Mail, Loader2, CheckCircle2, ArrowRight } from 'lucide-react';
 
 export default function Newsletter() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
 
-  const subscribe = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (status === 'loading' || !email.trim()) return;
-    setStatus('loading');
-    const { error } = await supabase.from('newsletter').insert({ email: email.trim() });
-    if (error) {
-      setStatus('error');
-      return;
-    }
-    setStatus('done');
-    setEmail('');
-  };
+
 
   return (
     <section className="relative py-16">
