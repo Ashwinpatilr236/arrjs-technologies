@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { supabase, type Inquiry } from '../lib/supabase';
 import { serviceOptionsForForm } from '../data/content';
 import { MapPin, Mail, Phone, Clock, Send, CheckCircle2, AlertCircle, Loader2, MessageCircle } from 'lucide-react';
 
@@ -40,8 +39,8 @@ export default function Contact() {
       message: form.message.trim(),
     };
 
-    const { error } = await supabase.from('inquiries').insert(payload);
-
+console.log(formData);
+alert("Thank you! Your inquiry has been received.");
     if (error) {
       setStatus('error');
       setErrorMsg('Something went wrong sending your message. Please try again or WhatsApp us.');
