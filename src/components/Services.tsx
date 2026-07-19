@@ -7,6 +7,7 @@ import { Link } from '../lib/router';
 export default function Services() {
   const [active, setActive] = useState(services[0].id);
   const current = services.find((s) => s.id === active) ?? services[0];
+  const CurrentIcon = current.icon;
   const { ref, visible } = useReveal();
 
   return (
@@ -46,14 +47,14 @@ export default function Services() {
         </div>
 
         <div ref={ref} className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div
-            className={`card card-hover p-7 lg:col-span-1 transition-all duration-700 ${
-              visible ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-            }`}
-          >
-            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500/15 to-violet-500/15 text-brand-600 dark:text-brand-300">
-              <current.icon className="h-7 w-7" strokeWidth={1.75} />
-            </span>
+            <div
+              className={`card card-hover p-7 lg:col-span-1 transition-all duration-700 ${
+                visible ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+              }`}
+            >
+              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500/15 to-violet-500/15 text-brand-600 dark:text-brand-300">
+                <CurrentIcon className="h-7 w-7" strokeWidth={1.75} />
+              </span>
             <h3 className="mt-5 font-display text-2xl font-bold text-ink-900 dark:text-white">
               {current.title}
             </h3>

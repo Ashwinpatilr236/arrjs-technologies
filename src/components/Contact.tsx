@@ -1,9 +1,17 @@
 import { useState } from 'react';
 import { serviceOptionsForForm } from '../data/content';
-import {FAQ from '../components/FAQ'};
 import { MapPin, Mail, Phone, Clock, Send, CheckCircle2, AlertCircle, Loader2, MessageCircle } from 'lucide-react';
 
 type Status = 'idle' | 'loading' | 'success' | 'error';
+
+type Inquiry = {
+  name: string;
+  email: string;
+  phone?: string;
+  service?: string;
+  location?: string;
+  message: string;
+};
 
 export default function Contact() {
   const [status, setStatus] = useState<Status>('idle');
@@ -40,16 +48,16 @@ export default function Contact() {
       message: form.message.trim(),
     };
 
-console.log(formData);
-alert("Thank you! Your inquiry has been received.");
-    if (error) {
+    try {
+      // replace with real POST to your Supabase function / API
+      await new Promise((resolve) => setTimeout(resolve, 700));
+      console.log('Inquiry sent:', payload);
+      setStatus('success');
+      setForm({ name: '', email: '', phone: '', service: '', location: '', message: '' });
+    } catch (err) {
       setStatus('error');
       setErrorMsg('Something went wrong sending your message. Please try again or WhatsApp us.');
-      return;
     }
-
-    setStatus('success');
-    setForm({ name: '', email: '', phone: '', service: '', location: '', message: '' });
   };
 
   return (

@@ -1,9 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export function useReveal<T extends HTMLElement = HTMLDivElement>() {
   const ref = useRef<T | null>(null);
-  const visibleRef = useRef(false);
-  const force = useRef(0);
+  const [visible, setVisible] = useState(false);
+  const [key, setKey] = useState(0);
 
   useEffect(() => {
     const el = ref.current;
@@ -11,9 +11,9 @@ export function useReveal<T extends HTMLElement = HTMLDivElement>() {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && !visibleRef.current) {
-            visibleRef.current = true;
-            force.current += 1;
+          if (entry.isIntersecting && !visible) {
+            setVisible(true);
+            setKey((k) => k + 1);
             observer.unobserve(entry.target);
           }
         });
@@ -22,7 +22,7 @@ export function useReveal<T extends HTMLElement = HTMLDivElement>() {
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [visible]);
 
-  return { ref, visible: visibleRef.current, key: force.current };
+  return { ref, visible, key };
 }

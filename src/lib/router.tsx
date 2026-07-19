@@ -25,7 +25,7 @@ export function RouterProvider({ children }: { children: ReactNode }) {
     if (to === getPath()) return;
     window.history.pushState({}, '', to);
     setPath(to);
-    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+    window.scrollTo({ top: 0, behavior: 'auto' });
   }, []);
 
   return <RouterContext.Provider value={{ path, navigate }}>{children}</RouterContext.Provider>;
