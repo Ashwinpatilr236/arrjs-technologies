@@ -18,6 +18,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [mega, setMega] = useState(false);
+  const [logoSrc, setLogoSrc] = useState('/assets/logo/logo.svg');
   const [hasLogo, setHasLogo] = useState(true);
   const { theme, toggle } = useTheme();
   const location = useLocation();
@@ -45,15 +46,19 @@ export default function Navbar() {
       <nav className="container-page flex h-16 items-center justify-between md:h-20">
         <Link to="/" className="group flex items-center gap-2.5">
           {hasLogo ? (
-            <picture>
-              <source srcSet="/assets/logo/logo.svg" type="image/svg+xml" />
-              <img
-                src="/assets/logo/logo.png"
-                alt="ARRJS logo"
-                className="h-9 w-auto rounded-xl object-contain"
-                onError={() => setHasLogo(false)}
-              />
-            </picture>
+            <img
+              src={logoSrc}
+              alt="ARRJS logo"
+              className="h-9 w-auto rounded-xl object-contain"
+              onError={(event) => {
+                const img = event.currentTarget;
+                if (img.src.endsWith('logo.svg')) {
+                  setLogoSrc('/assets/logo/logo.png');
+                } else {
+                  setHasLogo(false);
+                }
+              }}
+            />
           ) : (
             <>
               <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-violet-600 text-white shadow-lg shadow-brand-500/30 transition-transform group-hover:scale-105">

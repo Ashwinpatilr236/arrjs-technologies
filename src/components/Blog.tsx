@@ -32,41 +32,44 @@ export default function Blog() {
         </div>
 
         <div ref={ref} className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {blogPosts.map((post, i) => (
-            <article
-              key={post.id}
-              style={{ transitionDelay: `${Math.min(i, 8) * 70}ms` }}
-              className={`card card-hover group cursor-pointer overflow-hidden transition-all duration-700 ${
-                visible ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-              }`}
-            >
-              <div className="relative h-40 overflow-hidden bg-gradient-to-br from-brand-500/15 via-violet-500/10 to-brand-400/10">
-                <div className="absolute inset-0 bg-grid-dark opacity-30" style={{ backgroundSize: '28px 28px' }} />
-                <span
-                  className={`absolute left-4 top-4 rounded-full px-3 py-1 text-[11px] font-semibold ${categoryColors[post.category]}`}
-                >
-                  {post.category}
-                </span>
-              </div>
-              <div className="p-5">
-                <div className="flex items-center gap-3 text-xs text-ink-500 dark:text-ink-400">
-                  <span>{post.date}</span>
-                  <span className="inline-flex items-center gap-1">
-                    <Clock className="h-3 w-3" /> {post.readTime}
+          {blogPosts.map((post, i) => {
+            const slug = post.slug || post.id;
+            return (
+              <article
+                key={post.id}
+                style={{ transitionDelay: `${Math.min(i, 8) * 70}ms` }}
+                className={`card card-hover group cursor-pointer overflow-hidden transition-all duration-700 ${
+                  visible ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+                }`}
+              >
+                <div className="relative h-40 overflow-hidden bg-gradient-to-br from-brand-500/15 via-violet-500/10 to-brand-400/10">
+                  <div className="absolute inset-0 bg-grid-dark opacity-30" style={{ backgroundSize: '28px 28px' }} />
+                  <span
+                    className={`absolute left-4 top-4 rounded-full px-3 py-1 text-[11px] font-semibold ${categoryColors[post.category]}`}
+                  >
+                    {post.category}
                   </span>
                 </div>
-                <h3 className="mt-3 font-display text-lg font-semibold leading-snug text-ink-900 dark:text-white transition-colors group-hover:text-brand-600 dark:group-hover:text-brand-300">
-                  {post.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-ink-600 dark:text-ink-300">
-                  {post.excerpt}
-                </p>
-                <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-600 dark:text-brand-300">
-                  Read more <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                </span>
-              </div>
-            </article>
-          ))}
+                <div className="p-5">
+                  <div className="flex items-center gap-3 text-xs text-ink-500 dark:text-ink-400">
+                    <span>{post.date}</span>
+                    <span className="inline-flex items-center gap-1">
+                      <Clock className="h-3 w-3" /> {post.readTime}
+                    </span>
+                  </div>
+                  <h3 className="mt-3 font-display text-lg font-semibold leading-snug text-ink-900 dark:text-white transition-colors group-hover:text-brand-600 dark:group-hover:text-brand-300">
+                    {post.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-ink-600 dark:text-ink-300">
+                    {post.excerpt}
+                  </p>
+                  <Link to={`/blog/${slug}`} className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-600 dark:text-brand-300">
+                    Read more <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                </div>
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>

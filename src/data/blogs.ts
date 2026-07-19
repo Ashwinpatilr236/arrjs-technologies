@@ -1,7 +1,7 @@
 export type BlogPost = {
   id: string;
   title: string;
-  category: 'Technology' | 'AI' | 'Website Tips' | 'Business' | 'PC Building' | 'Cloud' | 'Cyber Security';
+  category: string;
   excerpt: string;
   date: string;
   readTime: string;
@@ -11,5 +11,6 @@ export type BlogPost = {
 
 // Prefer generated index (created by scripts/generate-blog-index.mjs).
 // During development/build the `prebuild` script will create `blogPosts.generated.ts`.
-export { blogPosts } from './blogPosts.generated';
+import { blogPosts as generatedBlogPosts } from './blogPosts.generated';
+export const blogPosts: BlogPost[] = generatedBlogPosts;
 

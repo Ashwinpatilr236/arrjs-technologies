@@ -10,6 +10,7 @@ import StorePage from './pages/StorePage';
 import PortfolioPage from './pages/PortfolioPage';
 import AboutPage from './pages/AboutPage';
 import BlogPage from './pages/BlogPage';
+import BlogPostPage from './pages/BlogPostPage';
 import ContactPage from './pages/ContactPage';
 
 function Routes() {
@@ -20,7 +21,8 @@ function Routes() {
   else if (path.startsWith('/store')) Page = StorePage;
   else if (path.startsWith('/portfolio')) Page = PortfolioPage;
   else if (path.startsWith('/about')) Page = AboutPage;
-  else if (path.startsWith('/blog')) Page = BlogPage;
+  else if (path === '/blog') Page = BlogPage;
+  else if (path.startsWith('/blog/')) Page = BlogPostPage;
   else if (path.startsWith('/contact')) Page = ContactPage;
 
   return <Page />;

@@ -20,4 +20,4 @@ export const blogPosts = [
     "slug": "how-ai-chatbots-transform-lead-capture",
     "html": "AI chatbots help businesses capture leads around the clock. Here's a quick overview of why they're effective:\n\n* Available 24/7\n* Qualify leads automatically\n* Reduce human workload\n\nMore details coming soon.\n"
   }
-] as const;
+];
