@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { serviceOptionsForForm } from '../data/content';
-import FAQ from '../components/FAQ';
+import {FAQ from '../components/FAQ'};
 import { MapPin, Mail, Phone, Clock, Send, CheckCircle2, AlertCircle, Loader2, MessageCircle } from 'lucide-react';
 
 type Status = 'idle' | 'loading' | 'success' | 'error';
