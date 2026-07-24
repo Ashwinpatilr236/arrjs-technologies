@@ -1,16 +1,26 @@
-import { useMemo, useState } from 'react';
-import { products, productCategories, type Product } from '../data/content';
+import { useMemo, useState, useEffect } from 'react';
+import { cms, type StoreProductItem } from '../lib/cms';
 import { useReveal } from '../hooks/useReveal';
-import { Star, Download, Eye, Heart, ShoppingCart, Check } from 'lucide-react';
+import { Star, Download, Eye, Heart, ShoppingCart, Check, ShoppingBag } from 'lucide-react';
 
 export default function DigitalStore() {
   const [cat, setCat] = useState('All');
+  const [products, setProducts] = useState<StoreProductItem[]>([]);
   const [wishlist, setWishlist] = useState<Set<string>>(new Set());
   const { ref, visible } = useReveal();
 
+  useEffect(() => {
+    setProducts(cms.getProducts());
+  }, []);
+
+  const categories = useMemo(() => {
+    const list = Array.from(new Set(products.map((p) => p.category)));
+    return ['All', ...list];
+  }, [products]);
+
   const filtered = useMemo(
     () => (cat === 'All' ? products : products.filter((p) => p.category === cat)),
-    [cat]
+    [cat, products]
   );
 
   const toggleWish = (id: string) =>
@@ -47,7 +57,7 @@ export default function DigitalStore() {
         </div>
 
         <div className="mt-10 flex flex-wrap gap-2">
-          {productCategories.map((c) => (
+          {categories.map((c) => (
             <button
               key={c}
               onClick={() => setCat(c)}
@@ -83,14 +93,6 @@ export default function DigitalStore() {
   );
 }
 
-const badgeStyles: Record<Product['badge'], string> = {
-  'Best Seller': 'bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-500/30',
-  Featured: 'bg-brand-500/15 text-brand-600 dark:text-brand-300 border-brand-500/30',
-  New: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-500/30',
-  Free: 'bg-violet-500/15 text-violet-600 dark:text-violet-300 border-violet-500/30',
-  Premium: 'bg-rose-500/15 text-rose-600 dark:text-rose-300 border-rose-500/30',
-};
-
 function ProductCard({
   product,
   index,
@@ -98,13 +100,15 @@ function ProductCard({
   wished,
   onWish,
 }: {
-  product: Product;
+  product: StoreProductItem;
   index: number;
   visible: boolean;
   wished: boolean;
   onWish: () => void;
 }) {
-  const Icon = product.icon;
+  const settings = cms.getSiteSettings();
+  const buyUrl = product.downloadUrl || product.whatsappLink || `https://wa.me/${settings.whatsappNumber}?text=Hi!+I+want+to+buy+${encodeURIComponent(product.title)}`;
+
   return (
     <article
       style={{ transitionDelay: `${Math.min(index, 8) * 60}ms` }}
@@ -113,12 +117,12 @@ function ProductCard({
       }`}
     >
       <div className="relative flex h-40 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-brand-500/10 via-violet-500/10 to-brand-400/10">
-        <Icon className="h-16 w-16 text-brand-500/70 transition-transform duration-500 group-hover:scale-110" strokeWidth={1.25} />
-        <span
-          className={`absolute left-3 top-3 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ${badgeStyles[product.badge]}`}
-        >
-          {product.badge}
-        </span>
+        <ShoppingBag className="h-16 w-16 text-brand-500/70 transition-transform duration-500 group-hover:scale-110" strokeWidth={1.25} />
+        {product.badge && (
+          <span className="absolute left-3 top-3 rounded-full border border-amber-500/30 bg-amber-500/15 text-amber-600 dark:text-amber-300 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider">
+            {product.badge}
+          </span>
+        )}
         <button
           onClick={onWish}
           className={`absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border backdrop-blur transition-all ${
@@ -145,12 +149,12 @@ function ProductCard({
       <h3 className="mt-1 font-display text-base font-semibold text-ink-900 dark:text-white">
         {product.title}
       </h3>
-      <p className="mt-1.5 text-sm leading-relaxed text-ink-600 dark:text-ink-300">
+      <p className="mt-1.5 text-sm leading-relaxed text-ink-600 dark:text-ink-300 line-clamp-2">
         {product.description}
       </p>
 
       <ul className="mt-3 flex flex-wrap gap-1.5">
-        {product.features.map((f) => (
+        {product.features?.map((f) => (
           <li
             key={f}
             className="rounded-full border border-ink-100 bg-ink-50 px-2.5 py-0.5 text-[11px] font-medium text-ink-600 dark:border-white/5 dark:bg-white/[0.03] dark:text-ink-300"
@@ -170,23 +174,22 @@ function ProductCard({
           )}
         </div>
         <div className="flex items-center gap-1.5">
-          <button
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-ink-200 text-ink-600 transition-colors hover:bg-ink-50 dark:border-white/10 dark:text-ink-300 dark:hover:bg-white/5"
-            aria-label="Preview"
+          <a
+            href={buyUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-primary !px-4 !py-2 text-xs"
           >
-            <Eye className="h-4 w-4" />
-          </button>
-          <button className="btn-primary !px-4 !py-2 text-xs">
             {product.price === 0 ? (
               <>
-                <Download className="h-3.5 w-3.5" /> Free
+                <Download className="h-3.5 w-3.5" /> Free Download
               </>
             ) : (
               <>
-                <ShoppingCart className="h-3.5 w-3.5" /> Buy
+                <ShoppingCart className="h-3.5 w-3.5" /> Buy Now
               </>
             )}
-          </button>
+          </a>
         </div>
       </div>
     </article>

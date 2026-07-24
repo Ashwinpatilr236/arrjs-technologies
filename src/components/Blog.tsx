@@ -1,20 +1,18 @@
-import { blogPosts, type BlogPost } from '../data/content';
+import { useState, useEffect } from 'react';
+import { cms, type BlogPostItem } from '../lib/cms';
 import { useReveal } from '../hooks/useReveal';
 import { ArrowRight, Clock } from 'lucide-react';
 import { Link } from '../lib/router';
 
-const categoryColors: Record<BlogPost['category'], string> = {
-  Technology: 'bg-brand-500/15 text-brand-600 dark:text-brand-300',
-  AI: 'bg-violet-500/15 text-violet-600 dark:text-violet-300',
-  'Website Tips': 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300',
-  Business: 'bg-amber-500/15 text-amber-600 dark:text-amber-300',
-  'PC Building': 'bg-rose-500/15 text-rose-600 dark:text-rose-300',
-  Cloud: 'bg-sky-500/15 text-sky-600 dark:text-sky-300',
-  'Cyber Security': 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-300',
-};
-
 export default function Blog() {
   const { ref, visible } = useReveal();
+  const [blogs, setBlogs] = useState<BlogPostItem[]>([]);
+
+  useEffect(() => {
+    const list = cms.getBlogs().filter((b) => b.status === 'published');
+    setBlogs(list.slice(0, 6));
+  }, []);
+
   return (
     <section id="blog" className="relative py-24 md:py-32">
       <div className="container-page">
@@ -32,8 +30,13 @@ export default function Blog() {
         </div>
 
         <div ref={ref} className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {blogPosts.map((post, i) => {
+          {blogs.map((post, i) => {
             const slug = post.slug || post.id;
+            const formattedDate = new Date(post.date).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            });
             return (
               <article
                 key={post.id}
@@ -44,15 +47,13 @@ export default function Blog() {
               >
                 <div className="relative h-40 overflow-hidden bg-gradient-to-br from-brand-500/15 via-violet-500/10 to-brand-400/10">
                   <div className="absolute inset-0 bg-grid-dark opacity-30" style={{ backgroundSize: '28px 28px' }} />
-                  <span
-                    className={`absolute left-4 top-4 rounded-full px-3 py-1 text-[11px] font-semibold ${categoryColors[post.category]}`}
-                  >
+                  <span className="absolute left-4 top-4 rounded-full px-3 py-1 text-[11px] font-semibold bg-brand-500/15 text-brand-600 dark:text-brand-300">
                     {post.category}
                   </span>
                 </div>
                 <div className="p-5">
                   <div className="flex items-center gap-3 text-xs text-ink-500 dark:text-ink-400">
-                    <span>{post.date}</span>
+                    <span>{formattedDate}</span>
                     <span className="inline-flex items-center gap-1">
                       <Clock className="h-3 w-3" /> {post.readTime}
                     </span>
@@ -60,7 +61,7 @@ export default function Blog() {
                   <h3 className="mt-3 font-display text-lg font-semibold leading-snug text-ink-900 dark:text-white transition-colors group-hover:text-brand-600 dark:group-hover:text-brand-300">
                     {post.title}
                   </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-ink-600 dark:text-ink-300">
+                  <p className="mt-2 text-sm leading-relaxed text-ink-600 dark:text-ink-300 line-clamp-2">
                     {post.excerpt}
                   </p>
                   <Link to={`/blog/${slug}`} className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-600 dark:text-brand-300">

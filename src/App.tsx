@@ -12,11 +12,13 @@ import AboutPage from './pages/AboutPage';
 import BlogPage from './pages/BlogPage';
 import BlogPostPage from './pages/BlogPostPage';
 import ContactPage from './pages/ContactPage';
+import AdminPage from './pages/AdminPage';
 
 function Routes() {
   const { path } = useRouter();
   let Page = Home;
   if (path === '/') Page = Home;
+  else if (path.startsWith('/admin')) Page = AdminPage;
   else if (path.startsWith('/services')) Page = ServicesPage;
   else if (path.startsWith('/store')) Page = StorePage;
   else if (path.startsWith('/portfolio')) Page = PortfolioPage;
@@ -29,17 +31,20 @@ function Routes() {
 }
 
 export default function App() {
+  const { path } = useRouter();
+  const isAdmin = path.startsWith('/admin');
+
   return (
     <RouterProvider>
       <div className="relative min-h-screen overflow-x-hidden">
         <AnimatedBackground />
-        <Navbar />
+        {!isAdmin && <Navbar />}
         <main>
           <Routes />
         </main>
-        <Footer />
-        <WhatsAppFloat />
-        <CookieConsent />
+        {!isAdmin && <Footer />}
+        {!isAdmin && <WhatsAppFloat />}
+        {!isAdmin && <CookieConsent />}
       </div>
     </RouterProvider>
   );

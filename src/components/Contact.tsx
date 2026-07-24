@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { serviceOptionsForForm } from '../data/content';
 import { MapPin, Mail, Phone, Clock, Send, CheckCircle2, AlertCircle, Loader2, MessageCircle } from 'lucide-react';
+import { cms } from '../lib/cms';
 
 type Status = 'idle' | 'loading' | 'success' | 'error';
 
@@ -49,9 +50,7 @@ export default function Contact() {
     };
 
     try {
-      // replace with real POST to your Supabase function / API
-      await new Promise((resolve) => setTimeout(resolve, 700));
-      console.log('Inquiry sent:', payload);
+      cms.saveInquiry(payload);
       setStatus('success');
       setForm({ name: '', email: '', phone: '', service: '', location: '', message: '' });
     } catch (err) {

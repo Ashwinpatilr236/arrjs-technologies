@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Mail, Loader2, CheckCircle2, ArrowRight } from 'lucide-react';
+import { cms } from '../lib/cms';
 
 export default function Newsletter() {
   const [email, setEmail] = useState('');
@@ -13,11 +14,7 @@ export default function Newsletter() {
     setStatus('loading');
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      console.log('Newsletter Subscription:', email);
-
+      cms.saveNewsletter(email.trim());
       setStatus('done');
       setEmail('');
     } catch (error) {
