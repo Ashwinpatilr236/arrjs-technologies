@@ -32,7 +32,7 @@ export default function DigitalStore() {
     });
 
   return (
-    <section id="store" className="relative overflow-hidden py-24 md:py-32">
+    <section id="store" className="relative overflow-hidden py-12 md:py-16">
       <div className="glow-orb left-[15%] top-[10%] h-72 w-72 bg-violet-500/10" />
       <div className="container-page relative">
         <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">

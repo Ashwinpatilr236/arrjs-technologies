@@ -9,7 +9,7 @@ export default function FAQ() {
   const { ref, visible } = useReveal();
 
   return (
-    <section id="faq" className="relative py-24 md:py-32">
+    <section id="faq" className="relative py-12 md:py-16">
       <div className="container-page">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
           <div className="lg:col-span-1">

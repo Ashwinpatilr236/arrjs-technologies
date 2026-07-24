@@ -70,7 +70,7 @@ export default function Contact() {
   const waUrl = `https://wa.me/${cleanWaNumber || '919876543210'}`;
 
   return (
-    <section id="contact" className="relative overflow-hidden py-24 md:py-32">
+    <section id="contact" className="relative overflow-hidden py-12 md:py-16">
       <div className="glow-orb left-[20%] top-[5%] h-80 w-80 bg-brand-500/15" />
       <div className="glow-orb right-[10%] bottom-[5%] h-80 w-80 bg-violet-500/10" />
       <div className="container-page relative">

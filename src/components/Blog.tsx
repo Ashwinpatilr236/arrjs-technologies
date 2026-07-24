@@ -14,7 +14,7 @@ export default function Blog() {
   }, []);
 
   return (
-    <section id="blog" className="relative py-24 md:py-32">
+    <section id="blog" className="relative py-12 md:py-16">
       <div className="container-page">
         <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
           <div className="max-w-2xl">

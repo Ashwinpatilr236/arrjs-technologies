@@ -11,7 +11,7 @@ export default function Portfolio() {
   const items = filter === 'All' ? portfolio : portfolio.filter((p) => p.category === filter);
 
   return (
-    <section id="portfolio" className="relative py-24 md:py-32">
+    <section id="portfolio" className="relative py-12 md:py-16">
       <div className="container-page">
         <div className="max-w-2xl">
           <span className="section-eyebrow">Portfolio</span>

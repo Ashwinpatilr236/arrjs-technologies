@@ -11,7 +11,7 @@ export default function Services() {
   const { ref, visible } = useReveal();
 
   return (
-    <section id="services" className="relative py-24 md:py-32">
+    <section id="services" className="relative py-12 md:py-16">
       <div className="container-page">
         <div className="max-w-2xl">
           <span className="section-eyebrow">What we do</span>
