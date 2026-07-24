@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Edit2, Trash2, Eye, FileText, Check, X, Flame, Hash } from 'lucide-react';
+import { Plus, Edit2, Trash2, Eye, FileText, Check, X, Flame, Hash, Image, Video } from 'lucide-react';
 import { cms, type BlogPostItem } from '../../lib/cms';
 
 export default function BlogManager() {
@@ -20,6 +20,8 @@ export default function BlogManager() {
       readTime: '5 min read',
       slug: '',
       html: '',
+      coverImage: '',
+      videoUrl: '',
       status: 'published',
       tags: ['#Tech', '#AI'],
       isTrending: false,
@@ -63,10 +65,10 @@ export default function BlogManager() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-ink-900 dark:text-white flex items-center gap-2">
-            <FileText className="h-5 w-5 text-brand-500" /> Blog Articles & Tags Manager
+            <FileText className="h-5 w-5 text-brand-500" /> Blog Articles, Photos & Videos Manager
           </h2>
           <p className="text-xs text-ink-600 dark:text-ink-400">
-            Create, edit, add #hashtags, toggle 🔥 Trending status, and publish blog articles.
+            Create, edit, add cover photos, video URLs, #hashtags, and toggle 🔥 Trending status.
           </p>
         </div>
         {!editing && (
@@ -115,6 +117,35 @@ export default function BlogManager() {
                 onChange={(e) => setEditing({ ...editing, category: e.target.value })}
                 placeholder="e.g. AI, Tech, PC Building, Web Dev"
                 className="input"
+              />
+            </div>
+          </div>
+
+          {/* Photo Cover & Video URL inputs */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-ink-700 dark:text-ink-300 mb-1 flex items-center gap-1">
+                <Image className="h-3.5 w-3.5 text-brand-500" /> Cover Photo URL (Image Link)
+              </label>
+              <input
+                type="url"
+                value={editing.coverImage || ''}
+                onChange={(e) => setEditing({ ...editing, coverImage: e.target.value })}
+                placeholder="https://images.unsplash.com/... or image link"
+                className="input text-xs"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-ink-700 dark:text-ink-300 mb-1 flex items-center gap-1">
+                <Video className="h-3.5 w-3.5 text-violet-500" /> Video URL (YouTube / MP4 / Video link)
+              </label>
+              <input
+                type="text"
+                value={editing.videoUrl || ''}
+                onChange={(e) => setEditing({ ...editing, videoUrl: e.target.value })}
+                placeholder="https://www.youtube.com/watch?v=... or video link"
+                className="input text-xs"
               />
             </div>
           </div>
@@ -249,12 +280,13 @@ export default function BlogManager() {
                         <Flame className="h-3 w-3 fill-current" /> TRENDING
                       </span>
                     )}
+                    {b.coverImage && <span className="text-[10px] font-semibold text-brand-600 bg-brand-500/10 px-2 py-0.5 rounded-full">🖼️ Photo</span>}
+                    {b.videoUrl && <span className="text-[10px] font-semibold text-violet-600 bg-violet-500/10 px-2 py-0.5 rounded-full">🎥 Video</span>}
                     <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
                       b.status === 'published' ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' : 'bg-amber-500/15 text-amber-600'
                     }`}>
                       {b.status}
                     </span>
-                    <span className="text-xs text-ink-600 dark:text-ink-400">{b.readTime}</span>
                   </div>
 
                   <h3 className="font-semibold text-ink-900 dark:text-white text-base">

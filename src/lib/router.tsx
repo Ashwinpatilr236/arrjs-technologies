@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 
 type RouterContextValue = {
   path: string;
@@ -38,12 +38,13 @@ export function useRouter() {
 type LinkProps = {
   to: string;
   className?: string;
+  style?: CSSProperties;
   children: ReactNode;
   onClick?: () => void;
   end?: boolean;
 };
 
-export function Link({ to, className, children, onClick }: LinkProps) {
+export function Link({ to, className, style, children, onClick }: LinkProps) {
   const { navigate } = useRouter();
   const isHash = to.startsWith('#') || to.startsWith('http');
   if (isHash) {
@@ -51,6 +52,7 @@ export function Link({ to, className, children, onClick }: LinkProps) {
       <a
         href={to}
         className={className}
+        style={style}
         onClick={onClick}
         target={to.startsWith('http') ? '_blank' : undefined}
         rel={to.startsWith('http') ? 'noopener noreferrer' : undefined}
@@ -63,6 +65,7 @@ export function Link({ to, className, children, onClick }: LinkProps) {
     <a
       href={to}
       className={className}
+      style={style}
       onClick={(e) => {
         e.preventDefault();
         navigate(to);

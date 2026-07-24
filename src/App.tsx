@@ -7,6 +7,7 @@ import CookieConsent from './components/CookieConsent';
 import Home from './pages/Home';
 import ServicesPage from './pages/ServicesPage';
 import StorePage from './pages/StorePage';
+import ProductDetailPage from './pages/ProductDetailPage';
 import PortfolioPage from './pages/PortfolioPage';
 import AboutPage from './pages/AboutPage';
 import BlogPage from './pages/BlogPage';
@@ -20,7 +21,8 @@ function Routes() {
   if (path === '/') Page = Home;
   else if (path.startsWith('/admin')) Page = AdminPage;
   else if (path.startsWith('/services')) Page = ServicesPage;
-  else if (path.startsWith('/store')) Page = StorePage;
+  else if (path === '/store') Page = StorePage;
+  else if (path.startsWith('/store/')) Page = ProductDetailPage;
   else if (path.startsWith('/portfolio')) Page = PortfolioPage;
   else if (path.startsWith('/about')) Page = AboutPage;
   else if (path === '/blog') Page = BlogPage;

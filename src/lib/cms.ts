@@ -12,6 +12,7 @@ export type BlogPostItem = {
   slug: string;
   html: string;
   coverImage?: string;
+  videoUrl?: string;
   status: 'published' | 'draft';
   tags?: string[];
   isTrending?: boolean;
@@ -29,6 +30,7 @@ export type StoreProductItem = {
   description: string;
   features: string[];
   imageUrl?: string;
+  videoUrl?: string;
   downloadUrl?: string;
   whatsappLink?: string;
   tags?: string[];
@@ -207,6 +209,7 @@ export const cms = {
           slug,
           html: blog.html || blog.content || '',
           coverImage: blog.coverImage,
+          videoUrl: blog.videoUrl,
           status: blog.status || 'published',
           tags: blog.tags || [],
           isTrending: blog.isTrending || false,
@@ -224,6 +227,7 @@ export const cms = {
         slug,
         html: blog.html || blog.content || '',
         coverImage: blog.coverImage,
+        videoUrl: blog.videoUrl,
         status: blog.status || 'published',
         tags: blog.tags || [],
         isTrending: blog.isTrending || false,

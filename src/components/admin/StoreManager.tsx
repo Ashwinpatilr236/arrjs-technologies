@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Edit2, Trash2, ShoppingBag, Check, X, Tag, DollarSign, ExternalLink, Flame, Hash } from 'lucide-react';
+import { Plus, Edit2, Trash2, ShoppingBag, Check, X, Tag, DollarSign, ExternalLink, Flame, Hash, Image, Video } from 'lucide-react';
 import { cms, type StoreProductItem } from '../../lib/cms';
 
 export default function StoreManager() {
@@ -23,6 +23,8 @@ export default function StoreManager() {
       badge: 'Trending',
       description: '',
       features: ['Auto calculations', 'GST ready'],
+      imageUrl: '',
+      videoUrl: '',
       downloadUrl: '',
       whatsappLink: '',
       tags: ['#Templates', '#GST'],
@@ -82,7 +84,7 @@ export default function StoreManager() {
             <ShoppingBag className="h-5 w-5 text-brand-500" /> Digital Store & Pricing Products Manager
           </h2>
           <p className="text-xs text-ink-600 dark:text-ink-400">
-            Add products, update prices, badges (*"Trending"*, *"Best Seller"*), #tags, and buy links.
+            Add products, update photos/videos, prices, badges (*"Trending"*, *"Best Seller"*), #tags, and buy links.
           </p>
         </div>
         {!editing && (
@@ -131,6 +133,35 @@ export default function StoreManager() {
                 onChange={(e) => setEditing({ ...editing, category: e.target.value })}
                 placeholder="e.g. Excel Templates, React Templates, AI Prompts"
                 className="input"
+              />
+            </div>
+          </div>
+
+          {/* Photo & Video inputs */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-ink-700 dark:text-ink-300 mb-1 flex items-center gap-1">
+                <Image className="h-3.5 w-3.5 text-brand-500" /> Product Photo / Image URL
+              </label>
+              <input
+                type="url"
+                value={editing.imageUrl || ''}
+                onChange={(e) => setEditing({ ...editing, imageUrl: e.target.value })}
+                placeholder="https://images.unsplash.com/... or image link"
+                className="input text-xs"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-ink-700 dark:text-ink-300 mb-1 flex items-center gap-1">
+                <Video className="h-3.5 w-3.5 text-violet-500" /> Demo Video URL (YouTube / Video link)
+              </label>
+              <input
+                type="text"
+                value={editing.videoUrl || ''}
+                onChange={(e) => setEditing({ ...editing, videoUrl: e.target.value })}
+                placeholder="https://www.youtube.com/watch?v=... or video link"
+                className="input text-xs"
               />
             </div>
           </div>
@@ -322,6 +353,8 @@ export default function StoreManager() {
                         <Flame className="h-3 w-3 fill-current" /> TRENDING
                       </span>
                     )}
+                    {p.imageUrl && <span className="text-[10px] font-semibold text-brand-600 bg-brand-500/10 px-2 py-0.5 rounded-full">🖼️ Photo</span>}
+                    {p.videoUrl && <span className="text-[10px] font-semibold text-violet-600 bg-violet-500/10 px-2 py-0.5 rounded-full">🎥 Video</span>}
                     {p.badge && (
                       <span className="bg-amber-500/15 text-amber-600 text-[10px] font-bold px-2 py-0.5 rounded-full">
                         {p.badge}

@@ -1,7 +1,8 @@
 import { useMemo, useState, useEffect } from 'react';
 import { cms, type StoreProductItem } from '../lib/cms';
 import { useReveal } from '../hooks/useReveal';
-import { Star, Download, Eye, Heart, ShoppingCart, Check, ShoppingBag, Flame } from 'lucide-react';
+import { Star, Download, Heart, ShoppingCart, Check, ShoppingBag, Flame, Play, ArrowRight } from 'lucide-react';
+import { Link } from '../lib/router';
 
 export default function DigitalStore() {
   const [cat, setCat] = useState('All');
@@ -72,7 +73,7 @@ export default function DigitalStore() {
           ))}
         </div>
 
-        <div ref={ref} className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div ref={ref} className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p, i) => (
             <ProductCard
               key={p.id}
@@ -106,113 +107,110 @@ function ProductCard({
   wished: boolean;
   onWish: () => void;
 }) {
-  const settings = cms.getSiteSettings();
-  const buyUrl = product.downloadUrl || product.whatsappLink || `https://wa.me/${settings.whatsappNumber}?text=Hi!+I+want+to+buy+${encodeURIComponent(product.title)}`;
+  const hasMedia = Boolean(product.imageUrl || product.videoUrl);
 
   return (
-    <article
+    <Link
+      to={`/store/${product.id}`}
       style={{ transitionDelay: `${Math.min(index, 8) * 60}ms` }}
-      className={`card card-hover group relative overflow-hidden p-5 transition-all duration-700 ${
+      className={`card card-hover group block relative overflow-hidden transition-all duration-500 ${
         visible ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
       }`}
     >
-      <div className="relative flex h-40 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-brand-500/10 via-violet-500/10 to-brand-400/10">
-        <ShoppingBag className="h-16 w-16 text-brand-500/70 transition-transform duration-500 group-hover:scale-110" strokeWidth={1.25} />
-        
-        <div className="absolute left-3 top-3 flex items-center gap-1.5">
-          {product.isTrending && (
-            <span className="rounded-full bg-gradient-to-r from-amber-500 to-red-500 text-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-md">
-              <Flame className="h-3 w-3 fill-current" /> Trending
-            </span>
-          )}
-          {product.badge && !product.isTrending && (
-            <span className="rounded-full border border-amber-500/30 bg-amber-500/15 text-amber-600 dark:text-amber-300 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider">
-              {product.badge}
-            </span>
-          )}
+      {/* Media Box: Only renders height if image or video exists */}
+      {hasMedia ? (
+        <div className="relative h-44 w-full overflow-hidden bg-slate-900">
+          {product.imageUrl ? (
+            <img src={product.imageUrl} alt={product.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          ) : product.videoUrl ? (
+            <div className="relative flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-900 via-brand-950 to-slate-900">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-600 text-white shadow-lg">
+                <Play className="h-5 w-5 fill-current ml-0.5" />
+              </div>
+            </div>
+          ) : null}
+
+          {/* Badges */}
+          <div className="absolute left-3 top-3 flex items-center gap-1.5 z-10">
+            {product.isTrending && (
+              <span className="rounded-full bg-gradient-to-r from-amber-500 to-red-500 text-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-md">
+                <Flame className="h-3 w-3 fill-current" /> Trending
+              </span>
+            )}
+            {product.badge && !product.isTrending && (
+              <span className="rounded-full border border-amber-500/30 bg-amber-500/15 text-amber-600 dark:text-amber-300 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider backdrop-blur">
+                {product.badge}
+              </span>
+            )}
+          </div>
         </div>
-
-        <button
-          onClick={onWish}
-          className={`absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border backdrop-blur transition-all ${
-            wished
-              ? 'border-rose-400 bg-rose-500/20 text-rose-500'
-              : 'border-white/20 bg-white/10 text-ink-300 hover:text-rose-500'
-          }`}
-          aria-label="Wishlist"
-        >
-          <Heart className={`h-4 w-4 ${wished ? 'fill-current' : ''}`} />
-        </button>
-      </div>
-
-      <div className="mt-4 flex items-center justify-between">
-        <span className="font-mono text-[10px] uppercase tracking-widest text-ink-400">
-          {product.category}
-        </span>
-        <span className="inline-flex items-center gap-1 text-xs font-medium text-ink-500 dark:text-ink-400">
-          <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-          {product.rating} ({product.reviews})
-        </span>
-      </div>
-
-      <h3 className="mt-1 font-display text-base font-semibold text-ink-900 dark:text-white">
-        {product.title}
-      </h3>
-
-      <p className="mt-1.5 text-sm leading-relaxed text-ink-600 dark:text-ink-300 line-clamp-2">
-        {product.description}
-      </p>
-
-      {/* Hashtags list */}
-      {(product.tags || []).length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-1">
-          {product.tags?.map((t, idx) => (
-            <span key={idx} className="text-[10px] font-semibold text-brand-600 dark:text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded-md">
-              {t}
-            </span>
-          ))}
+      ) : (
+        /* Compact Header Bar when Media is not present (Eliminates empty blank space) */
+        <div className="px-5 pt-5 flex items-center justify-between">
+          <span className="font-mono text-[10px] uppercase tracking-widest text-brand-600 dark:text-brand-400 font-bold">
+            {product.category}
+          </span>
+          <div className="flex items-center gap-1">
+            {product.isTrending && (
+              <span className="rounded-full bg-gradient-to-r from-amber-500 to-red-500 text-white px-2 py-0.5 text-[10px] font-bold uppercase flex items-center gap-1 shadow-sm">
+                <Flame className="h-3 w-3 fill-current" /> Trending
+              </span>
+            )}
+            {product.badge && !product.isTrending && (
+              <span className="rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-300 px-2 py-0.5 text-[10px] font-semibold uppercase">
+                {product.badge}
+              </span>
+            )}
+          </div>
         </div>
       )}
 
-      <ul className="mt-3 flex flex-wrap gap-1.5">
-        {product.features?.map((f) => (
-          <li
-            key={f}
-            className="rounded-full border border-ink-100 bg-ink-50 px-2.5 py-0.5 text-[11px] font-medium text-ink-600 dark:border-white/5 dark:bg-white/[0.03] dark:text-ink-300"
-          >
-            {f}
-          </li>
-        ))}
-      </ul>
-
-      <div className="mt-4 flex items-center justify-between">
-        <div className="flex items-baseline gap-2">
-          <span className="font-display text-xl font-bold text-ink-900 dark:text-white">
-            {product.price === 0 ? 'Free' : `₹${product.price}`}
+      <div className={`p-5 ${hasMedia ? '' : 'pt-2'}`}>
+        <div className="flex items-center justify-between text-xs text-ink-500 dark:text-ink-400">
+          <span className="font-mono text-[10px] uppercase tracking-widest text-ink-400">
+            {product.category}
           </span>
-          {product.oldPrice && product.price > 0 && (
-            <span className="text-sm text-ink-400 line-through">₹{product.oldPrice}</span>
-          )}
+          <span className="inline-flex items-center gap-1 font-medium">
+            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+            {product.rating} ({product.reviews})
+          </span>
         </div>
-        <div className="flex items-center gap-1.5">
-          <a
-            href={buyUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-primary !px-4 !py-2 text-xs"
-          >
-            {product.price === 0 ? (
-              <>
-                <Download className="h-3.5 w-3.5" /> Free Download
-              </>
-            ) : (
-              <>
-                <ShoppingCart className="h-3.5 w-3.5" /> Buy Now
-              </>
+
+        <h3 className="mt-2 font-display text-base font-bold text-ink-900 dark:text-white transition-colors group-hover:text-brand-600 dark:group-hover:text-brand-300">
+          {product.title}
+        </h3>
+
+        <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-ink-600 dark:text-ink-300 line-clamp-2">
+          {product.description}
+        </p>
+
+        {/* Hashtags */}
+        {(product.tags || []).length > 0 && (
+          <div className="mt-2.5 flex flex-wrap gap-1">
+            {product.tags?.map((t, idx) => (
+              <span key={idx} className="text-[10px] font-semibold text-brand-600 dark:text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded-md">
+                {t}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Pricing & Details CTA Bar */}
+        <div className="mt-4 flex items-center justify-between pt-3 border-t border-ink-100 dark:border-white/10">
+          <div className="flex items-baseline gap-2">
+            <span className="font-display text-lg font-bold text-ink-900 dark:text-white">
+              {product.price === 0 ? 'Free' : `₹${product.price}`}
+            </span>
+            {product.oldPrice && product.price > 0 && (
+              <span className="text-xs text-ink-400 line-through">₹{product.oldPrice}</span>
             )}
-          </a>
+          </div>
+          
+          <div className="inline-flex items-center gap-1 text-xs font-bold text-brand-600 dark:text-brand-400 group-hover:text-brand-500">
+            View Details <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+          </div>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }
