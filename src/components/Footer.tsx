@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react';
 import { Cpu, MapPin, Mail, ArrowUp, Phone, MessageCircle } from 'lucide-react';
 import { Link } from '../lib/router';
+import { cms } from '../lib/cms';
 
 const cols = [
   {
@@ -42,6 +44,17 @@ const cols = [
 ];
 
 export default function Footer() {
+  const [settings, setSettings] = useState(() => cms.getSiteSettings());
+
+  useEffect(() => {
+    const sync = () => setSettings(cms.getSiteSettings());
+    window.addEventListener('cms_settings_updated', sync);
+    return () => window.removeEventListener('cms_settings_updated', sync);
+  }, []);
+
+  const cleanWaNumber = settings.whatsappNumber.replace(/[^0-9]/g, '');
+  const waUrl = `https://wa.me/${cleanWaNumber || '919876543210'}`;
+
   return (
     <footer className="relative border-t border-ink-100 bg-ink-50/50 dark:border-white/10 dark:bg-ink-950">
       <div className="container-page py-14">
@@ -61,15 +74,15 @@ export default function Footer() {
             </p>
             <div className="mt-5 space-y-2 text-sm text-ink-600 dark:text-ink-300">
               <p className="inline-flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-brand-500" /> Vadodara, Gujarat, India
+                <MapPin className="h-4 w-4 text-brand-500" /> {settings.contactAddress}
               </p>
-              <a href="mailto:hello@arrjs.tech" className="flex items-center gap-2 transition-colors hover:text-brand-600 dark:hover:text-brand-300">
-                <Mail className="h-4 w-4 text-brand-500" /> hello@arrjs.tech
+              <a href={`mailto:${settings.contactEmail}`} className="flex items-center gap-2 transition-colors hover:text-brand-600 dark:hover:text-brand-300">
+                <Mail className="h-4 w-4 text-brand-500" /> {settings.contactEmail}
               </a>
-              <a href="tel:+910000000000" className="flex items-center gap-2 transition-colors hover:text-brand-600 dark:hover:text-brand-300">
-                <Phone className="h-4 w-4 text-brand-500" /> +91 00000 00000
+              <a href={`tel:${settings.contactPhone}`} className="flex items-center gap-2 transition-colors hover:text-brand-600 dark:hover:text-brand-300">
+                <Phone className="h-4 w-4 text-brand-500" /> {settings.contactPhone}
               </a>
-              <a href="https://wa.me/910000000000" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 transition-colors hover:text-brand-600 dark:hover:text-brand-300">
+              <a href={waUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 transition-colors hover:text-brand-600 dark:hover:text-brand-300">
                 <MessageCircle className="h-4 w-4 text-brand-500" /> WhatsApp Us
               </a>
             </div>

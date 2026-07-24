@@ -407,6 +407,9 @@ export const cms = {
     const current = this.getSiteSettings();
     const updated = { ...current, ...settings };
     setStored(KEYS.SETTINGS, updated);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('cms_settings_updated'));
+    }
     return updated;
   },
 };

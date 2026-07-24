@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { serviceOptionsForForm } from '../data/content';
 import { MapPin, Mail, Phone, Clock, Send, CheckCircle2, AlertCircle, Loader2, MessageCircle } from 'lucide-react';
 import { cms } from '../lib/cms';
@@ -17,6 +17,7 @@ type Inquiry = {
 export default function Contact() {
   const [status, setStatus] = useState<Status>('idle');
   const [errorMsg, setErrorMsg] = useState('');
+  const [settings, setSettings] = useState(() => cms.getSiteSettings());
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -25,6 +26,12 @@ export default function Contact() {
     location: '',
     message: '',
   });
+
+  useEffect(() => {
+    const sync = () => setSettings(cms.getSiteSettings());
+    window.addEventListener('cms_settings_updated', sync);
+    return () => window.removeEventListener('cms_settings_updated', sync);
+  }, []);
 
   const update = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
 
@@ -59,6 +66,9 @@ export default function Contact() {
     }
   };
 
+  const cleanWaNumber = settings.whatsappNumber.replace(/[^0-9]/g, '');
+  const waUrl = `https://wa.me/${cleanWaNumber || '919876543210'}`;
+
   return (
     <section id="contact" className="relative overflow-hidden py-24 md:py-32">
       <div className="glow-orb left-[20%] top-[5%] h-80 w-80 bg-brand-500/15" />
@@ -77,14 +87,14 @@ export default function Contact() {
             </p>
 
             <div className="mt-8 space-y-4">
-              <ContactItem icon={MapPin} title="Service area" value="Vadodara, Gujarat — On-site · Remote across India" />
-              <ContactItem icon={Mail} title="Email" value="hello@arrjs.tech" href="mailto:hello@arrjs.tech" />
-              <ContactItem icon={Phone} title="Phone / WhatsApp" value="+91 00000 00000" href="https://wa.me/910000000000" />
+              <ContactItem icon={MapPin} title="Service area" value={settings.contactAddress} />
+              <ContactItem icon={Mail} title="Email" value={settings.contactEmail} href={`mailto:${settings.contactEmail}`} />
+              <ContactItem icon={Phone} title="Phone / WhatsApp" value={settings.contactPhone} href={waUrl} />
               <ContactItem icon={Clock} title="Business hours" value="Mon–Sat · 9:00 AM – 8:00 PM IST" />
             </div>
 
             <a
-              href="https://wa.me/910000000000"
+              href={waUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-violet mt-6"
@@ -120,38 +130,31 @@ export default function Contact() {
                   </Field>
                 </div>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <Field label="Phone (optional)">
-                    <input type="tel" value={form.phone} onChange={(e) => update('phone', e.target.value)} placeholder="+91 ..." className="input" />
+                  <Field label="Phone / WhatsApp">
+                    <input type="tel" value={form.phone} onChange={(e) => update('phone', e.target.value)} placeholder="+91..." className="input" />
                   </Field>
-                  <Field label="Location (optional)">
-                    <input type="text" value={form.location} onChange={(e) => update('location', e.target.value)} placeholder="Vadodara" className="input" />
+                  <Field label="Service interested in">
+                    <select value={form.service} onChange={(e) => update('service', e.target.value)} className="input">
+                      <option value="">Select a service...</option>
+                      {serviceOptionsForForm.map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
                   </Field>
                 </div>
-                <Field label="Service needed">
-                  <select value={form.service} onChange={(e) => update('service', e.target.value)} className="input">
-                    <option value="">Select a service...</option>
-                    {serviceOptionsForForm.map((s) => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </select>
+                <Field label="Location (City / Area)">
+                  <input type="text" value={form.location} onChange={(e) => update('location', e.target.value)} placeholder="e.g. Vadodara, Gujarat" className="input" />
                 </Field>
-                <Field label="Message" required>
-                  <textarea value={form.message} onChange={(e) => update('message', e.target.value)} placeholder="Tell us about your project..." rows={4} className="input resize-none" />
+                <Field label="Project details" required>
+                  <textarea rows={4} value={form.message} onChange={(e) => update('message', e.target.value)} placeholder="Describe your project..." className="input" />
                 </Field>
-
                 {status === 'error' && (
-                  <div className="flex items-start gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-600 dark:text-rose-300">
-                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                    <span>{errorMsg}</span>
+                  <div className="flex items-center gap-2 text-xs font-medium text-rose-500">
+                    <AlertCircle className="h-4 w-4" /> {errorMsg}
                   </div>
                 )}
-
-                <button type="submit" disabled={status === 'loading'} className="btn-primary w-full disabled:opacity-60">
-                  {status === 'loading' ? (
-                    <><Loader2 className="h-4 w-4 animate-spin" /> Sending...</>
-                  ) : (
-                    <>Send message <Send className="h-4 w-4" /></>
-                  )}
+                <button type="submit" disabled={status === 'loading'} className="btn-primary w-full shadow-lg shadow-brand-500/25">
+                  {status === 'loading' ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Send className="h-4 w-4" /> Send inquiry</>}
                 </button>
               </form>
             )}
@@ -162,44 +165,29 @@ export default function Contact() {
   );
 }
 
-function ContactItem({
-  icon: Icon,
-  title,
-  value,
-  href,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  value: string;
-  href?: string;
-}) {
-  const content = (
-    <div className="flex items-start gap-3">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-ink-200 bg-white text-brand-600 dark:border-white/10 dark:bg-white/5 dark:text-brand-300">
+function ContactItem({ icon: Icon, title, value, href }: { icon: any; title: string; value: string; href?: string }) {
+  const inner = (
+    <div className="flex items-center gap-3.5 rounded-2xl border border-ink-100 bg-white/70 p-3.5 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-500/15 text-brand-600 dark:text-brand-300">
         <Icon className="h-5 w-5" />
       </span>
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wider text-ink-500 dark:text-ink-400">{title}</p>
-        <p className="mt-0.5 text-sm text-ink-900 dark:text-ink-100">{value}</p>
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-400">{title}</p>
+        <p className="text-sm font-semibold text-ink-900 dark:text-white">{value}</p>
       </div>
     </div>
   );
-  return href ? (
-    <a href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer" className="block transition-opacity hover:opacity-80">
-      {content}
-    </a>
-  ) : (
-    content
-  );
+
+  return href ? <a href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">{inner}</a> : inner;
 }
 
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
-    <label className="block">
-      <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-ink-600 dark:text-ink-300">
-        {label} {required && <span className="text-brand-500">*</span>}
-      </span>
+    <div>
+      <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-ink-600 dark:text-ink-300">
+        {label} {required && <span className="text-rose-500">*</span>}
+      </label>
       {children}
-    </label>
+    </div>
   );
 }

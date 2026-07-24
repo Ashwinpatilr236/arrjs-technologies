@@ -1,13 +1,24 @@
 import { useEffect, useState } from 'react';
 import { MessageCircle, X } from 'lucide-react';
+import { cms } from '../lib/cms';
 
 export default function WhatsAppFloat() {
   const [show, setShow] = useState(false);
+  const [settings, setSettings] = useState(() => cms.getSiteSettings());
 
   useEffect(() => {
     const t = setTimeout(() => setShow(true), 1200);
     return () => clearTimeout(t);
   }, []);
+
+  useEffect(() => {
+    const sync = () => setSettings(cms.getSiteSettings());
+    window.addEventListener('cms_settings_updated', sync);
+    return () => window.removeEventListener('cms_settings_updated', sync);
+  }, []);
+
+  const cleanWaNumber = settings.whatsappNumber.replace(/[^0-9]/g, '');
+  const waUrl = `https://wa.me/${cleanWaNumber || '919876543210'}`;
 
   return (
     <div
@@ -19,7 +30,7 @@ export default function WhatsAppFloat() {
         <X className="h-3.5 w-3.5 text-ink-400" /> Need help? Chat with us
       </div>
       <a
-        href="https://wa.me/910000000000"
+        href={waUrl}
         target="_blank"
         rel="noopener noreferrer"
         className="group flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-xl shadow-emerald-500/30 transition-transform hover:scale-110"
