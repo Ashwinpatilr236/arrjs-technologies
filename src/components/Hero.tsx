@@ -37,7 +37,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section id="home" className="relative overflow-hidden pt-28 md:pt-40">
+    <section id="home" className="relative overflow-hidden pt-24 md:pt-32 pb-8 md:pb-12">
       <div className="container-page relative">
         <div className="mx-auto max-w-4xl text-center">
           <div className="animate-fade-in inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white/60 px-4 py-1.5 text-xs font-medium text-ink-700 backdrop-blur dark:border-white/10 dark:bg-white/5 dark:text-ink-200">

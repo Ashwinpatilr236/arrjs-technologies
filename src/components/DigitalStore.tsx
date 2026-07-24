@@ -73,7 +73,7 @@ export default function DigitalStore() {
           ))}
         </div>
 
-        <div ref={ref} className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div ref={ref} className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p, i) => (
             <ProductCard
               key={p.id}

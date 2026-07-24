@@ -12,7 +12,7 @@ export default function About() {
   const { ref, visible } = useReveal();
 
   return (
-    <section id="about" className="relative overflow-hidden py-24 md:py-32">
+    <section id="about" className="relative overflow-hidden py-12 md:py-16">
       <div className="glow-orb right-[10%] top-[15%] h-72 w-72 bg-brand-500/10" />
       <div className="container-page relative">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
