@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Plus, Edit2, Trash2, Eye, FileText, Check, X, Sparkles } from 'lucide-react';
+import { Plus, Edit2, Trash2, Eye, FileText, Check, X, Flame, Hash } from 'lucide-react';
 import { cms, type BlogPostItem } from '../../lib/cms';
 
 export default function BlogManager() {
   const [blogs, setBlogs] = useState<BlogPostItem[]>(() => cms.getBlogs());
   const [editing, setEditing] = useState<BlogPostItem | null>(null);
+  const [tagInput, setTagInput] = useState('');
   const [isNew, setIsNew] = useState(false);
 
   const refresh = () => setBlogs(cms.getBlogs());
@@ -20,7 +21,10 @@ export default function BlogManager() {
       slug: '',
       html: '',
       status: 'published',
+      tags: ['#Tech', '#AI'],
+      isTrending: false,
     });
+    setTagInput('');
     setIsNew(true);
   };
 
@@ -41,15 +45,28 @@ export default function BlogManager() {
     }
   };
 
+  const addTag = () => {
+    if (!tagInput.trim() || !editing) return;
+    let formatted = tagInput.trim();
+    if (!formatted.startsWith('#')) formatted = '#' + formatted;
+    setEditing({ ...editing, tags: [...(editing.tags || []), formatted] });
+    setTagInput('');
+  };
+
+  const removeTag = (idx: number) => {
+    if (!editing) return;
+    setEditing({ ...editing, tags: (editing.tags || []).filter((_, i) => i !== idx) });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-ink-900 dark:text-white flex items-center gap-2">
-            <FileText className="h-5 w-5 text-brand-500" /> Blog Articles Manager
+            <FileText className="h-5 w-5 text-brand-500" /> Blog Articles & Tags Manager
           </h2>
           <p className="text-xs text-ink-600 dark:text-ink-400">
-            Create, edit, and publish blog articles directly on your website.
+            Create, edit, add #hashtags, toggle 🔥 Trending status, and publish blog articles.
           </p>
         </div>
         {!editing && (
@@ -102,7 +119,7 @@ export default function BlogManager() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-semibold text-ink-700 dark:text-ink-300 mb-1">
                 Read Time
@@ -127,6 +144,52 @@ export default function BlogManager() {
                 <option value="published">Published</option>
                 <option value="draft">Draft</option>
               </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-ink-700 dark:text-ink-300 mb-1">
+                🔥 Trending Status
+              </label>
+              <label className="flex items-center gap-2 mt-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={Boolean(editing.isTrending)}
+                  onChange={(e) => setEditing({ ...editing, isTrending: e.target.checked })}
+                  className="h-5 w-5 rounded border-ink-300 text-orange-500 focus:ring-orange-500"
+                />
+                <span className="text-xs font-bold text-orange-600 dark:text-orange-400 flex items-center gap-1">
+                  <Flame className="h-4 w-4 fill-orange-500" /> Highlight as Trending
+                </span>
+              </label>
+            </div>
+          </div>
+
+          {/* Hashtags & Sub-tags Manager */}
+          <div>
+            <label className="block text-xs font-semibold text-ink-700 dark:text-ink-300 mb-1 flex items-center gap-1">
+              <Hash className="h-3.5 w-3.5 text-brand-500" /> Article Sub-Tags & Hashtags (#tags)
+            </label>
+            <div className="flex gap-2 mb-2">
+              <input
+                type="text"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }}
+                placeholder="Add tag e.g. #Vadodara, #AI, #WebDesign"
+                className="input text-xs"
+              />
+              <button type="button" onClick={addTag} className="btn-brand text-xs px-3">
+                Add Tag
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {(editing.tags || []).map((t, i) => (
+                <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-300 text-xs font-semibold">
+                  {t}
+                  <button type="button" onClick={() => removeTag(i)} className="text-ink-400 hover:text-red-500">
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
             </div>
           </div>
 
@@ -178,9 +241,14 @@ export default function BlogManager() {
           ) : (
             blogs.map((b) => (
               <div key={b.id} className="card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
+                <div className="space-y-1.5">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="badge-brand text-[10px] py-0.5">{b.category}</span>
+                    {b.isTrending && (
+                      <span className="bg-gradient-to-r from-amber-500 to-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+                        <Flame className="h-3 w-3 fill-current" /> TRENDING
+                      </span>
+                    )}
                     <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
                       b.status === 'published' ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' : 'bg-amber-500/15 text-amber-600'
                     }`}>
@@ -188,12 +256,22 @@ export default function BlogManager() {
                     </span>
                     <span className="text-xs text-ink-600 dark:text-ink-400">{b.readTime}</span>
                   </div>
+
                   <h3 className="font-semibold text-ink-900 dark:text-white text-base">
                     {b.title}
                   </h3>
+
                   <p className="text-xs text-ink-600 dark:text-ink-300 line-clamp-1">
                     {b.excerpt || 'No description'}
                   </p>
+
+                  <div className="flex flex-wrap gap-1 pt-1">
+                    {(b.tags || []).map((t, idx) => (
+                      <span key={idx} className="text-[10px] font-semibold text-brand-600 dark:text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded-md">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2 self-end sm:self-center">

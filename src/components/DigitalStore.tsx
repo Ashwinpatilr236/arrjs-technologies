@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { cms, type StoreProductItem } from '../lib/cms';
 import { useReveal } from '../hooks/useReveal';
-import { Star, Download, Eye, Heart, ShoppingCart, Check, ShoppingBag } from 'lucide-react';
+import { Star, Download, Eye, Heart, ShoppingCart, Check, ShoppingBag, Flame } from 'lucide-react';
 
 export default function DigitalStore() {
   const [cat, setCat] = useState('All');
@@ -118,11 +118,20 @@ function ProductCard({
     >
       <div className="relative flex h-40 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-brand-500/10 via-violet-500/10 to-brand-400/10">
         <ShoppingBag className="h-16 w-16 text-brand-500/70 transition-transform duration-500 group-hover:scale-110" strokeWidth={1.25} />
-        {product.badge && (
-          <span className="absolute left-3 top-3 rounded-full border border-amber-500/30 bg-amber-500/15 text-amber-600 dark:text-amber-300 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider">
-            {product.badge}
-          </span>
-        )}
+        
+        <div className="absolute left-3 top-3 flex items-center gap-1.5">
+          {product.isTrending && (
+            <span className="rounded-full bg-gradient-to-r from-amber-500 to-red-500 text-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-md">
+              <Flame className="h-3 w-3 fill-current" /> Trending
+            </span>
+          )}
+          {product.badge && !product.isTrending && (
+            <span className="rounded-full border border-amber-500/30 bg-amber-500/15 text-amber-600 dark:text-amber-300 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider">
+              {product.badge}
+            </span>
+          )}
+        </div>
+
         <button
           onClick={onWish}
           className={`absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border backdrop-blur transition-all ${
@@ -149,9 +158,21 @@ function ProductCard({
       <h3 className="mt-1 font-display text-base font-semibold text-ink-900 dark:text-white">
         {product.title}
       </h3>
+
       <p className="mt-1.5 text-sm leading-relaxed text-ink-600 dark:text-ink-300 line-clamp-2">
         {product.description}
       </p>
+
+      {/* Hashtags list */}
+      {(product.tags || []).length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1">
+          {product.tags?.map((t, idx) => (
+            <span key={idx} className="text-[10px] font-semibold text-brand-600 dark:text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded-md">
+              {t}
+            </span>
+          ))}
+        </div>
+      )}
 
       <ul className="mt-3 flex flex-wrap gap-1.5">
         {product.features?.map((f) => (

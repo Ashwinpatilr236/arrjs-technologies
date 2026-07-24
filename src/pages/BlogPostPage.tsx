@@ -1,6 +1,6 @@
 import { Link } from '../lib/router';
 import { cms } from '../lib/cms';
-import { ArrowLeft, Clock } from 'lucide-react';
+import { ArrowLeft, Clock, Flame } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
 import { useLocation } from '../lib/router';
 
@@ -41,13 +41,32 @@ export default function BlogPostPage() {
           <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 dark:bg-slate-800">
             <span className="h-2.5 w-2.5 rounded-full bg-brand-500" /> {post.category}
           </span>
+
+          {post.isTrending && (
+            <span className="rounded-full px-3 py-1 text-xs font-bold bg-gradient-to-r from-amber-500 to-red-500 text-white flex items-center gap-1 shadow-sm">
+              <Flame className="h-3.5 w-3.5 fill-current" /> TRENDING ARTICLE
+            </span>
+          )}
+
           <span>{formattedDate}</span>
           <span className="inline-flex items-center gap-1">
             <Clock className="h-4 w-4" /> {post.readTime}
           </span>
         </div>
+
+        {(post.tags || []).length > 0 && (
+          <div className="mb-6 flex flex-wrap gap-1.5">
+            {post.tags?.map((t, idx) => (
+              <span key={idx} className="text-xs font-semibold text-brand-600 dark:text-brand-300 bg-brand-500/10 px-2.5 py-1 rounded-lg">
+                {t}
+              </span>
+            ))}
+          </div>
+        )}
+
         <div className="prose prose-slate max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: post.html || '<p>No content available.</p>' }} />
-        <div className="mt-10">
+        
+        <div className="mt-10 pt-6 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center">
           <Link to="/blog" className="btn-ghost">
             <ArrowLeft className="h-4 w-4" /> Back to blog
           </Link>

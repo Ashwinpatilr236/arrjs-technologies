@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { cms, type BlogPostItem } from '../lib/cms';
 import { useReveal } from '../hooks/useReveal';
-import { ArrowRight, Clock } from 'lucide-react';
+import { ArrowRight, Clock, Flame, Hash } from 'lucide-react';
 import { Link } from '../lib/router';
 
 export default function Blog() {
@@ -45,12 +45,31 @@ export default function Blog() {
                   visible ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
                 }`}
               >
-                <div className="relative h-40 overflow-hidden bg-gradient-to-br from-brand-500/15 via-violet-500/10 to-brand-400/10">
+                <div className="relative h-44 overflow-hidden bg-gradient-to-br from-brand-500/15 via-violet-500/10 to-brand-400/10 p-4 flex flex-col justify-between">
                   <div className="absolute inset-0 bg-grid-dark opacity-30" style={{ backgroundSize: '28px 28px' }} />
-                  <span className="absolute left-4 top-4 rounded-full px-3 py-1 text-[11px] font-semibold bg-brand-500/15 text-brand-600 dark:text-brand-300">
-                    {post.category}
-                  </span>
+                  <div className="relative z-10 flex items-center justify-between">
+                    <span className="rounded-full px-3 py-1 text-[11px] font-semibold bg-brand-500/15 text-brand-600 dark:text-brand-300 backdrop-blur">
+                      {post.category}
+                    </span>
+                    {post.isTrending && (
+                      <span className="rounded-full px-3 py-1 text-[11px] font-bold bg-gradient-to-r from-amber-500 to-red-500 text-white flex items-center gap-1 shadow-md animate-pulse">
+                        <Flame className="h-3.5 w-3.5 fill-current" /> TRENDING
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Tags list on card */}
+                  {(post.tags || []).length > 0 && (
+                    <div className="relative z-10 flex flex-wrap gap-1">
+                      {post.tags?.map((t, idx) => (
+                        <span key={idx} className="text-[10px] font-semibold text-brand-700 dark:text-brand-300 bg-white/70 dark:bg-slate-900/70 px-2 py-0.5 rounded-md backdrop-blur">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
+
                 <div className="p-5">
                   <div className="flex items-center gap-3 text-xs text-ink-500 dark:text-ink-400">
                     <span>{formattedDate}</span>
@@ -65,7 +84,7 @@ export default function Blog() {
                     {post.excerpt}
                   </p>
                   <Link to={`/blog/${slug}`} className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-600 dark:text-brand-300">
-                    Read more <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                    Read article <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                   </Link>
                 </div>
               </article>

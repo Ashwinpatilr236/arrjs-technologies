@@ -13,6 +13,8 @@ export type BlogPostItem = {
   html: string;
   coverImage?: string;
   status: 'published' | 'draft';
+  tags?: string[];
+  isTrending?: boolean;
 };
 
 export type StoreProductItem = {
@@ -29,6 +31,8 @@ export type StoreProductItem = {
   imageUrl?: string;
   downloadUrl?: string;
   whatsappLink?: string;
+  tags?: string[];
+  isTrending?: boolean;
 };
 
 export type TestimonialItem = {
@@ -110,7 +114,7 @@ function setStored<T>(key: string, val: T): void {
 }
 
 // Initial Data Normalization
-const defaultBlogs: BlogPostItem[] = generatedBlogPosts.map((b) => ({
+const defaultBlogs: BlogPostItem[] = generatedBlogPosts.map((b, i) => ({
   id: b.id,
   title: b.title,
   category: b.category,
@@ -120,9 +124,11 @@ const defaultBlogs: BlogPostItem[] = generatedBlogPosts.map((b) => ({
   slug: b.slug,
   html: b.html,
   status: 'published',
+  tags: b.category === 'PC Building' ? ['#PCBuilding', '#Vadodara', '#Hardware'] : ['#AI', '#LeadCapture', '#Automation'],
+  isTrending: i === 0,
 }));
 
-const defaultProducts: StoreProductItem[] = initialProducts.map((p) => ({
+const defaultProducts: StoreProductItem[] = initialProducts.map((p, i) => ({
   id: p.id,
   title: p.title,
   category: p.category,
@@ -133,6 +139,8 @@ const defaultProducts: StoreProductItem[] = initialProducts.map((p) => ({
   badge: p.badge,
   description: p.description,
   features: p.features,
+  tags: ['#' + p.category.replace(/[^a-zA-Z0-9]/g, ''), '#ARRJS'],
+  isTrending: i < 3,
 }));
 
 const defaultTestimonials: TestimonialItem[] = initialTestimonials.map((t) => ({
@@ -153,7 +161,6 @@ export const cms = {
     return localStorage.getItem(KEYS.AUTH) === 'true';
   },
   login(passcode: string): boolean {
-    // Simple passcode check (default: 'admin123' or customizable)
     if (passcode === 'admin123' || passcode === 'arrjs2026') {
       localStorage.setItem(KEYS.AUTH, 'true');
       return true;
@@ -185,6 +192,8 @@ export const cms = {
           ...blog,
           slug,
           html: blog.html || blog.content || blogs[idx].html,
+          tags: blog.tags || blogs[idx].tags || [],
+          isTrending: blog.isTrending ?? blogs[idx].isTrending ?? false,
         };
         blogs[idx] = item;
       } else {
@@ -199,6 +208,8 @@ export const cms = {
           html: blog.html || blog.content || '',
           coverImage: blog.coverImage,
           status: blog.status || 'published',
+          tags: blog.tags || [],
+          isTrending: blog.isTrending || false,
         };
         blogs.unshift(item);
       }
@@ -214,6 +225,8 @@ export const cms = {
         html: blog.html || blog.content || '',
         coverImage: blog.coverImage,
         status: blog.status || 'published',
+        tags: blog.tags || [],
+        isTrending: blog.isTrending || false,
       };
       blogs.unshift(item);
     }
@@ -235,7 +248,12 @@ export const cms = {
     if (prod.id) {
       const idx = products.findIndex((p) => p.id === prod.id);
       if (idx !== -1) {
-        item = { ...products[idx], ...prod };
+        item = { 
+          ...products[idx], 
+          ...prod,
+          tags: prod.tags || products[idx].tags || [],
+          isTrending: prod.isTrending ?? products[idx].isTrending ?? false,
+        };
         products[idx] = item;
       } else {
         item = {
@@ -252,6 +270,8 @@ export const cms = {
           imageUrl: prod.imageUrl,
           downloadUrl: prod.downloadUrl,
           whatsappLink: prod.whatsappLink,
+          tags: prod.tags || [],
+          isTrending: prod.isTrending || false,
         };
         products.unshift(item);
       }
@@ -270,6 +290,8 @@ export const cms = {
         imageUrl: prod.imageUrl,
         downloadUrl: prod.downloadUrl,
         whatsappLink: prod.whatsappLink,
+        tags: prod.tags || [],
+        isTrending: prod.isTrending || false,
       };
       products.unshift(item);
     }
