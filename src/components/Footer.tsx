@@ -26,11 +26,11 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentView, onOpenConsultati
   };
 
   return (
-    <footer className="bg-slate-900 text-slate-300 pt-16 pb-12 border-t border-slate-800">
+    <footer className="bg-slate-900 text-slate-300 pt-10 pb-6 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Top 12-Column Balanced Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 sm:gap-10 pb-12 border-b border-slate-800">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 sm:gap-8 pb-8 border-b border-slate-800">
           
           {/* Column 1: Brand & Positioning (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
@@ -216,7 +216,7 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentView, onOpenConsultati
         </div>
 
         {/* Affiliate Disclosure & Service Clarity */}
-        <div className="mt-8 pt-6 border-t border-slate-800/80 bg-slate-950/40 p-4.5 rounded-2xl border border-slate-800/60 text-xs text-slate-400 space-y-2 shadow-xs">
+        <div className="mt-5 pt-4 border-t border-slate-800/80 bg-slate-950/40 p-4 rounded-2xl border border-slate-800/60 text-xs text-slate-400 space-y-1.5 shadow-xs">
           <div className="flex items-center gap-2 text-slate-200 font-bold">
             <ShieldCheck className="w-4 h-4 text-blue-400 shrink-0" />
             <span>ARRJS Tech Store Affiliate Partner Disclosure & Service Clarity</span>
@@ -230,7 +230,7 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentView, onOpenConsultati
         </div>
 
         {/* Bottom Copyright & Quick Links */}
-        <div className="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
+        <div className="mt-5 pt-4 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-3">
           <p>© {new Date().getFullYear()} ARRJS Technologies. All rights reserved.</p>
           <div className="flex items-center gap-4 text-slate-400 font-medium">
             <button onClick={() => navTo('about')} className="hover:text-slate-200 transition-colors cursor-pointer">About</button>

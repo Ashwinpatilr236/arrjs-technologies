@@ -78,7 +78,7 @@ export const Header: React.FC<HeaderProps> = ({
               <img 
                 src="/assets/logo/logo.svg" 
                 alt="ARRJS Technologies Logo" 
-                className="h-10 sm:h-12 w-auto object-contain transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-md"
+                className="h-11 sm:h-13 w-auto object-contain transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-md"
               />
             </div>
           </button>

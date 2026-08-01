@@ -89,15 +89,19 @@ export default function App() {
         preSelectedService={preSelectedService}
       />
 
-      {/* Floating Action Button for Quick Consultation & WhatsApp Lead */}
-      <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3">
+      {/* Floating Action Button for Quick Consultation */}
+      <div className="fixed bottom-6 right-6 z-40 animate-float">
         <button
           onClick={() => handleOpenConsultation('Quick Inquiry from Floating Button')}
-          className="bg-blue-600 hover:bg-blue-700 text-white p-3.5 sm:px-5 sm:py-3.5 rounded-full shadow-xl hover:shadow-2xl transition-all flex items-center gap-2 font-bold text-xs sm:text-sm active:scale-95 cursor-pointer border border-blue-400/40"
+          className="group flex items-center gap-2.5 bg-slate-900 hover:bg-slate-800 text-white px-4 py-3 sm:px-5 sm:py-3.5 rounded-full shadow-2xl hover:shadow-blue-900/20 border border-slate-700/90 hover:border-blue-400/50 transition-all duration-300 cursor-pointer active:scale-95 hover:scale-105"
           title="Get Free Consultation"
         >
-          <PhoneCall className="w-5 h-5 text-blue-200" />
-          <span className="hidden sm:inline">Get Free Consultation</span>
+          <div className="w-7 h-7 rounded-full bg-blue-600 group-hover:bg-blue-500 text-white flex items-center justify-center transition-colors shadow-xs">
+            <PhoneCall className="w-3.5 h-3.5 text-blue-100" />
+          </div>
+          <span className="text-xs sm:text-sm font-bold tracking-wide text-slate-100 group-hover:text-white">
+            Get Free Consultation
+          </span>
         </button>
       </div>
 
