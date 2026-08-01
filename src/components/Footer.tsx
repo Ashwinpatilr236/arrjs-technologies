@@ -11,7 +11,8 @@ import {
   ShieldCheck, 
   ExternalLink,
   ArrowRight,
-  PhoneCall
+  PhoneCall,
+  Lock
 } from 'lucide-react';
 
 interface FooterProps {
@@ -131,6 +132,11 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentView, onOpenConsultati
                   <ArrowRight className="w-3 h-3 text-slate-500" /> Contact Us
                 </button>
               </li>
+              <li>
+                <button onClick={() => navTo('admin')} className="text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1.5 font-bold cursor-pointer pt-1 border-t border-slate-800">
+                  <Lock className="w-3 h-3 text-blue-400" /> Admin Portal 🔒
+                </button>
+              </li>
             </ul>
           </div>
 
@@ -238,6 +244,10 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentView, onOpenConsultati
             <button onClick={() => navTo('services')} className="hover:text-slate-200 transition-colors cursor-pointer">Vadodara Services</button>
             <span>•</span>
             <button onClick={() => navTo('contact')} className="hover:text-slate-200 transition-colors cursor-pointer">Contact</button>
+            <span>•</span>
+            <button onClick={() => navTo('admin')} className="hover:text-blue-300 text-blue-400 transition-colors cursor-pointer font-bold flex items-center gap-1">
+              <Lock className="w-3 h-3" /> Admin Portal
+            </button>
           </div>
         </div>
 

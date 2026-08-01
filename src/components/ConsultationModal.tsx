@@ -40,6 +40,27 @@ export const ConsultationModal: React.FC<ConsultationModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
+
+    try {
+      const existing = localStorage.getItem('arrjs_leads');
+      const leadsList = existing ? JSON.parse(existing) : [];
+      const newLead = {
+        id: `lead-${Date.now()}`,
+        createdAt: new Date().toLocaleString('en-US', { dateStyle: 'short', timeStyle: 'short' }),
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        customerType: formData.customerType,
+        specificService: formData.specificService,
+        location: formData.location,
+        isVadodaraResident: formData.isVadodaraResident,
+        message: formData.message,
+        status: 'new'
+      };
+      localStorage.setItem('arrjs_leads', JSON.stringify([newLead, ...leadsList]));
+    } catch (err) {
+      console.error("Failed to save lead", err);
+    }
   };
 
   const handleWhatsAppRedirect = () => {

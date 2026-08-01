@@ -1,4 +1,18 @@
-export type PageView = 'home' | 'about' | 'services' | 'store' | 'portfolio' | 'contact';
+export type PageView = 'home' | 'about' | 'services' | 'store' | 'portfolio' | 'contact' | 'admin';
+
+export interface AdminLead {
+  id: string;
+  createdAt: string;
+  name: string;
+  phone: string;
+  email?: string;
+  customerType: string;
+  specificService: string;
+  location: string;
+  isVadodaraResident: boolean;
+  message?: string;
+  status: 'new' | 'contacted' | 'quoted' | 'completed';
+}
 
 export interface ServiceItem {
   id: string;

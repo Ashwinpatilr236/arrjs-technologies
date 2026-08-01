@@ -8,6 +8,7 @@ import { ServicesView } from './components/ServicesView';
 import { StoreView } from './components/StoreView';
 import { PortfolioView } from './components/PortfolioView';
 import { ContactView } from './components/ContactView';
+import { AdminView } from './components/AdminView';
 import { ConsultationModal } from './components/ConsultationModal';
 import { MessageSquare, PhoneCall } from 'lucide-react';
 
@@ -73,6 +74,10 @@ export default function App() {
 
         {currentView === 'contact' && (
           <ContactView />
+        )}
+
+        {currentView === 'admin' && (
+          <AdminView setCurrentView={setCurrentView} />
         )}
       </main>
 
