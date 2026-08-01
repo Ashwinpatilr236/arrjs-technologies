@@ -75,13 +75,19 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <div className="relative flex items-center justify-center">
               <img 
-                src="/assets/logo/logo-icon.svg" 
+                src="/assets/logo/logo.png" 
                 alt="ARRJS Technologies Logo" 
                 className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl object-contain shadow-md shadow-blue-900/10 group-hover:scale-105 transition-transform"
                 onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                  const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                  if (fallback) fallback.style.display = 'flex';
+                  const target = e.currentTarget;
+                  if (!target.dataset.triedSvg) {
+                    target.dataset.triedSvg = 'true';
+                    target.src = '/assets/logo/logo.svg';
+                  } else {
+                    target.style.display = 'none';
+                    const fallback = target.nextElementSibling as HTMLElement;
+                    if (fallback) fallback.style.display = 'flex';
+                  }
                 }}
               />
               <div className="hidden w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900 items-center justify-center text-white shadow-md shadow-blue-900/10 group-hover:scale-105 transition-transform">

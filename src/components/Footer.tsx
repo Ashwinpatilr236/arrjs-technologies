@@ -36,13 +36,19 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentView, onOpenConsultati
             <div className="flex items-center gap-3">
               <div className="relative flex items-center justify-center">
                 <img 
-                  src="/assets/logo/logo-icon.svg" 
+                  src="/assets/logo/logo.png" 
                   alt="ARRJS Technologies Logo" 
                   className="w-10 h-10 rounded-xl object-contain shadow-md"
                   onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                    if (fallback) fallback.style.display = 'flex';
+                    const target = e.currentTarget;
+                    if (!target.dataset.triedSvg) {
+                      target.dataset.triedSvg = 'true';
+                      target.src = '/assets/logo/logo.svg';
+                    } else {
+                      target.style.display = 'none';
+                      const fallback = target.nextElementSibling as HTMLElement;
+                      if (fallback) fallback.style.display = 'flex';
+                    }
                   }}
                 />
                 <div className="hidden w-10 h-10 rounded-xl bg-blue-600 items-center justify-center text-white shadow-md">
