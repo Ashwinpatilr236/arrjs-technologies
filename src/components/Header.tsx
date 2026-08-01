@@ -73,8 +73,20 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => handleNavClick('home')}
             className="flex items-center gap-3 text-left focus:outline-hidden group"
           >
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900 flex items-center justify-center text-white shadow-md shadow-blue-900/10 group-hover:scale-105 transition-transform">
-              <Laptop className="w-5 h-5 sm:w-6 sm:h-6 text-blue-300" />
+            <div className="relative flex items-center justify-center">
+              <img 
+                src="/assets/logo/logo-icon.svg" 
+                alt="ARRJS Technologies Logo" 
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl object-contain shadow-md shadow-blue-900/10 group-hover:scale-105 transition-transform"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                  if (fallback) fallback.style.display = 'flex';
+                }}
+              />
+              <div className="hidden w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900 items-center justify-center text-white shadow-md shadow-blue-900/10 group-hover:scale-105 transition-transform">
+                <Laptop className="w-5 h-5 sm:w-6 sm:h-6 text-blue-300" />
+              </div>
             </div>
             <div>
               <div className="flex items-center gap-1.5">

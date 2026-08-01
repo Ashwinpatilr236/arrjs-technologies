@@ -34,8 +34,20 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentView, onOpenConsultati
           {/* Column 1: Brand & Positioning */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md">
-                <Laptop className="w-5 h-5 text-blue-200" />
+              <div className="relative flex items-center justify-center">
+                <img 
+                  src="/assets/logo/logo-icon.svg" 
+                  alt="ARRJS Technologies Logo" 
+                  className="w-10 h-10 rounded-xl object-contain shadow-md"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                    if (fallback) fallback.style.display = 'flex';
+                  }}
+                />
+                <div className="hidden w-10 h-10 rounded-xl bg-blue-600 items-center justify-center text-white shadow-md">
+                  <Laptop className="w-5 h-5 text-blue-200" />
+                </div>
               </div>
               <span className="font-bold text-xl text-white tracking-tight">
                 ARRJS <span className="text-blue-400">Technologies</span>
