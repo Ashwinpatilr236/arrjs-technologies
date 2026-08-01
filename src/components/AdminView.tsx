@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { PageView, AdminLead, ServiceItem, StoreProduct, DemoProject, SiteConfig } from '../types';
 import { SERVICES_DATA } from '../data/services';
 import { STORE_PRODUCTS } from '../data/store';
@@ -791,422 +791,303 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
           </div>
         )}
 
-        {/* TAB 2: SITE CUSTOMIZER (FULL CONTENT CONTROL) */}
-        {activeTab === 'customizer' && (
-          <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-8">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <div>
-                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                  <Sliders className="w-5 h-5 text-amber-400" />
-                  Website Content & Branding Customizer
-                </h3>
-                <p className="text-xs text-slate-400 mt-1">
-                  Customize company name, tagline, contact info, hero headlines, and social media URLs across the site.
-                </p>
-              </div>
-              <button
-                onClick={handleSaveSiteConfig}
-                className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer"
-              >
-                <Save className="w-4 h-4" />
-                <span>Save All Customizations</span>
-              </button>
-            </div>
+        {/* TAB 2: SITE CUSTOMIZER — Click-to-Edit */}
+        {activeTab === 'customizer' && (() => {
+          // --- Inline Edit Field Component ---
+          const InlineField = ({
+            label, hint, value, fieldKey, type = 'text', isTextarea = false, accentColor = 'blue'
+          }: {
+            label: string; hint?: string; value: string;
+            fieldKey: keyof SiteConfig; type?: string;
+            isTextarea?: boolean; accentColor?: string;
+          }) => {
+            const [editing, setEditing] = React.useState(false);
+            const [draft, setDraft] = React.useState(value);
+            const inputRef = React.useRef<HTMLInputElement & HTMLTextAreaElement>(null);
 
-            {/* Section 1: Company Profile & Contacts */}
-            <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h4 className="text-sm font-bold text-blue-400 uppercase tracking-wider flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-blue-400" /> 1. Company Profile & Official Contacts
-                </h4>
-                <span className="text-[11px] bg-blue-500/10 text-blue-300 px-2.5 py-0.5 rounded-full border border-blue-500/20 font-semibold">
-                  Header & Footer Synced
-                </span>
-              </div>
+            React.useEffect(() => { setDraft(value); }, [value]);
+            React.useEffect(() => { if (editing && inputRef.current) inputRef.current.focus(); }, [editing]);
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                <div>
-                  <label className="block text-slate-200 font-bold mb-1">Company Name</label>
-                  <input
-                    type="text"
-                    value={siteConfig.companyName}
-                    onChange={(e) => setSiteConfig({ ...siteConfig, companyName: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white font-semibold outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
-                  />
-                  <p className="text-[10px] text-slate-400 mt-1">Primary business name displayed everywhere.</p>
+            const commit = () => {
+              setSiteConfig(prev => ({ ...prev, [fieldKey]: draft }));
+              setEditing(false);
+            };
+            const cancel = () => { setDraft(value); setEditing(false); };
+
+            const ringClass = accentColor === 'emerald' ? 'focus:ring-emerald-500' : accentColor === 'purple' ? 'focus:ring-purple-500' : accentColor === 'amber' ? 'focus:ring-amber-500' : 'focus:ring-blue-500';
+            const borderActiveClass = accentColor === 'emerald' ? 'border-emerald-500' : accentColor === 'purple' ? 'border-purple-500' : accentColor === 'amber' ? 'border-amber-500' : 'border-blue-500';
+
+            return (
+              <div className="group/field">
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-slate-300 font-semibold text-[11px] uppercase tracking-wider">{label}</label>
+                  {!editing && (
+                    <button
+                      onClick={() => setEditing(true)}
+                      className="opacity-0 group-hover/field:opacity-100 flex items-center gap-1 text-[10px] text-slate-400 hover:text-blue-400 transition-all px-2 py-0.5 rounded-lg hover:bg-slate-800 cursor-pointer"
+                    >
+                      <Edit3 className="w-3 h-3" /> Edit
+                    </button>
+                  )}
                 </div>
 
-                <div>
-                  <label className="block text-slate-200 font-bold mb-1">Business Tagline</label>
-                  <input
-                    type="text"
-                    value={siteConfig.tagline}
-                    onChange={(e) => setSiteConfig({ ...siteConfig, tagline: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
-                  />
-                  <p className="text-[10px] text-slate-400 mt-1">Short slogan under logo & footer.</p>
-                </div>
-
-                <div>
-                  <label className="block text-slate-200 font-bold mb-1">Official Email Address</label>
-                  <input
-                    type="email"
-                    value={siteConfig.officialEmail}
-                    onChange={(e) => setSiteConfig({ ...siteConfig, officialEmail: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
-                  />
-                  <p className="text-[10px] text-slate-400 mt-1">Direct contact email link.</p>
-                </div>
-
-                <div>
-                  <label className="block text-slate-200 font-bold mb-1">Official Phone Number</label>
-                  <input
-                    type="text"
-                    value={siteConfig.officialPhone}
-                    onChange={(e) => setSiteConfig({ ...siteConfig, officialPhone: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
-                  />
-                  <p className="text-[10px] text-slate-400 mt-1">Clickable call link across site.</p>
-                </div>
-
-                <div>
-                  <label className="block text-slate-200 font-bold mb-1 text-emerald-400">WhatsApp Direct Number (no spaces/dashes)</label>
-                  <input
-                    type="text"
-                    value={siteConfig.officialWhatsApp || ''}
-                    onChange={(e) => setSiteConfig({ ...siteConfig, officialWhatsApp: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-emerald-300 font-bold outline-hidden focus:ring-2 focus:ring-emerald-500 transition-all"
-                  />
-                  <p className="text-[10px] text-emerald-400/80 mt-1">Example: 919825012345 (used for 1-click customer chat).</p>
-                </div>
-
-                <div>
-                  <label className="block text-slate-200 font-bold mb-1">Operating Business Hours</label>
-                  <input
-                    type="text"
-                    value={siteConfig.operatingHours}
-                    onChange={(e) => setSiteConfig({ ...siteConfig, operatingHours: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
-                  />
-                  <p className="text-[10px] text-slate-400 mt-1">Working schedule in top notification bar.</p>
-                </div>
-
-                <div>
-                  <label className="block text-slate-200 font-bold mb-1">Location City</label>
-                  <input
-                    type="text"
-                    value={siteConfig.locationCity}
-                    onChange={(e) => setSiteConfig({ ...siteConfig, locationCity: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
-                  />
-                  <p className="text-[10px] text-slate-400 mt-1">Primary service area badge.</p>
-                </div>
-
-                <div>
-                  <label className="block text-slate-200 font-bold mb-1">Full Office Address</label>
-                  <input
-                    type="text"
-                    value={siteConfig.officeAddress || ''}
-                    onChange={(e) => setSiteConfig({ ...siteConfig, officeAddress: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
-                  />
-                  <p className="text-[10px] text-slate-400 mt-1">Displayed in contact view & Google Snippets.</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Section 2: Header Notification Banner & Hero Section */}
-            <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h4 className="text-sm font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-emerald-400" /> 2. Top Header Notification Bar & Hero Section
-                </h4>
-                <span className="text-[11px] bg-emerald-500/10 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/20 font-semibold">
-                  Hero Live Preview
-                </span>
-              </div>
-
-              <div className="space-y-4 text-xs">
-                <div>
-                  <label className="block text-slate-200 font-bold mb-1">Top Notification Banner Text</label>
-                  <input
-                    type="text"
-                    value={siteConfig.topBannerText}
-                    onChange={(e) => setSiteConfig({ ...siteConfig, topBannerText: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-slate-200 font-bold mb-1">Hero Main Headline (Start)</label>
-                    <input
-                      type="text"
-                      value={siteConfig.heroHeadline}
-                      onChange={(e) => setSiteConfig({ ...siteConfig, heroHeadline: e.target.value })}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all font-semibold"
-                    />
+                {editing ? (
+                  <div className="space-y-1.5">
+                    {isTextarea ? (
+                      <textarea
+                        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+                        rows={3}
+                        value={draft}
+                        onChange={e => setDraft(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Escape') cancel(); }}
+                        className={`w-full px-3 py-2.5 rounded-xl bg-slate-950 border-2 ${borderActiveClass} text-white text-xs outline-none leading-relaxed transition-all ${ringClass}`}
+                      />
+                    ) : (
+                      <input
+                        ref={inputRef as React.RefObject<HTMLInputElement>}
+                        type={type}
+                        value={draft}
+                        onChange={e => setDraft(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter') commit(); if (e.key === 'Escape') cancel(); }}
+                        className={`w-full px-3 py-2.5 rounded-xl bg-slate-950 border-2 ${borderActiveClass} text-white text-xs font-medium outline-none transition-all ${ringClass}`}
+                      />
+                    )}
+                    <div className="flex items-center gap-2">
+                      <button onClick={commit} className="flex items-center gap-1 bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer">
+                        <CheckCircle2 className="w-3 h-3" /> Save
+                      </button>
+                      <button onClick={cancel} className="flex items-center gap-1 text-slate-400 hover:text-white text-[10px] px-2 py-1.5 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer">
+                        <X className="w-3 h-3" /> Cancel
+                      </button>
+                      <span className="text-[9px] text-slate-600 ml-1">Enter to save · Esc to cancel</span>
+                    </div>
                   </div>
+                ) : (
+                  <button
+                    onClick={() => setEditing(true)}
+                    className="w-full text-left px-3 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-slate-600 text-white text-xs font-medium transition-all cursor-pointer group/val flex items-center justify-between gap-2 hover:bg-slate-950"
+                    title="Click to edit"
+                  >
+                    <span className={`truncate ${!draft ? 'text-slate-500 italic' : ''}`}>
+                      {draft || `(empty — click to set ${label})`}
+                    </span>
+                    <Edit3 className="w-3 h-3 text-slate-600 group-hover/val:text-blue-400 shrink-0 transition-colors" />
+                  </button>
+                )}
 
-                  <div>
-                    <label className="block text-slate-200 font-bold mb-1">Hero Highlight Gradient Text</label>
-                    <input
-                      type="text"
-                      value={siteConfig.heroHighlightText}
-                      onChange={(e) => setSiteConfig({ ...siteConfig, heroHighlightText: e.target.value })}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-blue-300 font-bold outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
-                    />
+                {hint && !editing && (
+                  <p className="text-[10px] text-slate-500 mt-1">{hint}</p>
+                )}
+              </div>
+            );
+          };
+
+          // --- Inline Stat Pair ---
+          const StatPair = ({ label, valKey, labelKey, valDefault, labelDefault }: {
+            label: string; valKey: keyof SiteConfig; labelKey: keyof SiteConfig;
+            valDefault: string; labelDefault: string;
+          }) => {
+            const [editingVal, setEditingVal] = React.useState(false);
+            const [editingLabel, setEditingLabel] = React.useState(false);
+            const [draftVal, setDraftVal] = React.useState(String(siteConfig[valKey] || valDefault));
+            const [draftLabel, setDraftLabel] = React.useState(String(siteConfig[labelKey] || labelDefault));
+
+            React.useEffect(() => { setDraftVal(String(siteConfig[valKey] || valDefault)); }, [siteConfig[valKey]]);
+            React.useEffect(() => { setDraftLabel(String(siteConfig[labelKey] || labelDefault)); }, [siteConfig[labelKey]]);
+
+            return (
+              <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2 group/stat">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase">{label}</span>
+                </div>
+                {/* Value */}
+                {editingVal ? (
+                  <div className="flex gap-1.5">
+                    <input autoFocus value={draftVal} onChange={e => setDraftVal(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') { setSiteConfig(p => ({ ...p, [valKey]: draftVal })); setEditingVal(false); } if (e.key === 'Escape') setEditingVal(false); }}
+                      className="flex-1 min-w-0 px-2 py-1 bg-slate-900 border border-blue-500 text-white text-xs font-bold rounded-lg outline-none" />
+                    <button onClick={() => { setSiteConfig(p => ({ ...p, [valKey]: draftVal })); setEditingVal(false); }} className="bg-blue-600 text-white text-[10px] px-2 rounded-lg">✓</button>
                   </div>
-
-                  <div>
-                    <label className="block text-slate-200 font-bold mb-1">Hero Top Location Badge Text</label>
-                    <input
-                      type="text"
-                      value={siteConfig.heroBadgeText || ''}
-                      onChange={(e) => setSiteConfig({ ...siteConfig, heroBadgeText: e.target.value })}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
-                    />
+                ) : (
+                  <button onClick={() => setEditingVal(true)} className="w-full text-left px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 hover:border-blue-500 text-white text-xs font-bold transition-colors cursor-pointer flex items-center justify-between">
+                    <span>{draftVal}</span><Edit3 className="w-2.5 h-2.5 text-slate-600" />
+                  </button>
+                )}
+                {/* Label */}
+                {editingLabel ? (
+                  <div className="flex gap-1.5">
+                    <input autoFocus value={draftLabel} onChange={e => setDraftLabel(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') { setSiteConfig(p => ({ ...p, [labelKey]: draftLabel })); setEditingLabel(false); } if (e.key === 'Escape') setEditingLabel(false); }}
+                      className="flex-1 min-w-0 px-2 py-1 bg-slate-900 border border-blue-500 text-slate-300 text-[11px] rounded-lg outline-none" />
+                    <button onClick={() => { setSiteConfig(p => ({ ...p, [labelKey]: draftLabel })); setEditingLabel(false); }} className="bg-blue-600 text-white text-[10px] px-2 rounded-lg">✓</button>
                   </div>
+                ) : (
+                  <button onClick={() => setEditingLabel(true)} className="w-full text-left px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 hover:border-blue-500 text-slate-400 text-[11px] transition-colors cursor-pointer flex items-center justify-between">
+                    <span>{draftLabel}</span><Edit3 className="w-2.5 h-2.5 text-slate-600" />
+                  </button>
+                )}
+              </div>
+            );
+          };
 
-                  <div>
-                    <label className="block text-slate-200 font-bold mb-1">Primary CTA Button Label</label>
-                    <input
-                      type="text"
-                      value={siteConfig.heroPrimaryCtaText || ''}
-                      onChange={(e) => setSiteConfig({ ...siteConfig, heroPrimaryCtaText: e.target.value })}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white font-bold outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
-                    />
+          return (
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-8">
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div>
+                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                    <Sliders className="w-5 h-5 text-amber-400" />
+                    Website Content &amp; Branding Customizer
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1 flex items-center gap-1.5">
+                    <Edit3 className="w-3 h-3 text-blue-400" />
+                    Click any field to edit it — press Enter or ✓ to save
+                  </p>
+                </div>
+                <button
+                  onClick={handleSaveSiteConfig}
+                  className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>Save All</span>
+                </button>
+              </div>
+
+              {/* Section 1: Company Profile */}
+              <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h4 className="text-sm font-bold text-blue-400 uppercase tracking-wider flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-blue-400" /> 1. Company Profile &amp; Official Contacts
+                  </h4>
+                  <span className="text-[11px] bg-blue-500/10 text-blue-300 px-2.5 py-0.5 rounded-full border border-blue-500/20 font-semibold">Header &amp; Footer Synced</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                  <InlineField label="Company Name" fieldKey="companyName" value={siteConfig.companyName} hint="Primary business name displayed everywhere." />
+                  <InlineField label="Business Tagline" fieldKey="tagline" value={siteConfig.tagline} hint="Short slogan under logo &amp; footer." />
+                  <InlineField label="Official Email Address" fieldKey="officialEmail" value={siteConfig.officialEmail} type="email" hint="Direct contact email link." />
+                  <InlineField label="Official Phone Number" fieldKey="officialPhone" value={siteConfig.officialPhone} hint="Clickable call link across site." />
+                  <InlineField label="WhatsApp Number (no spaces/dashes)" fieldKey="officialWhatsApp" value={siteConfig.officialWhatsApp || ''} accentColor="emerald" hint="e.g. 919825012345 — used for 1-click customer chat." />
+                  <InlineField label="Operating Business Hours" fieldKey="operatingHours" value={siteConfig.operatingHours} hint="Working schedule in top notification bar." />
+                  <InlineField label="Location City" fieldKey="locationCity" value={siteConfig.locationCity} hint="Primary service area badge." />
+                  <InlineField label="Full Office Address" fieldKey="officeAddress" value={siteConfig.officeAddress || ''} hint="Displayed in contact view &amp; Google Snippets." />
+                </div>
+              </div>
+
+              {/* Section 2: Banner & Hero */}
+              <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h4 className="text-sm font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-emerald-400" /> 2. Top Banner &amp; Hero Section
+                  </h4>
+                  <span className="text-[11px] bg-emerald-500/10 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/20 font-semibold">Hero Live Preview</span>
+                </div>
+                <div className="space-y-4 text-xs">
+                  <InlineField label="Top Notification Banner Text" fieldKey="topBannerText" value={siteConfig.topBannerText} accentColor="emerald" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <InlineField label="Hero Main Headline (Start)" fieldKey="heroHeadline" value={siteConfig.heroHeadline} />
+                    <InlineField label="Hero Highlight Gradient Text" fieldKey="heroHighlightText" value={siteConfig.heroHighlightText} />
+                    <InlineField label="Hero Top Location Badge Text" fieldKey="heroBadgeText" value={siteConfig.heroBadgeText || ''} />
+                    <InlineField label="Primary CTA Button Label" fieldKey="heroPrimaryCtaText" value={siteConfig.heroPrimaryCtaText || ''} />
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-slate-200 font-bold mb-1">Hero Subtitle Paragraph</label>
-                  <textarea
-                    rows={2}
-                    value={siteConfig.heroSubtitle}
-                    onChange={(e) => setSiteConfig({ ...siteConfig, heroSubtitle: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 leading-relaxed transition-all"
-                  ></textarea>
+                  <InlineField label="Hero Subtitle Paragraph" fieldKey="heroSubtitle" value={siteConfig.heroSubtitle} isTextarea hint="Shown below the hero headline." />
                 </div>
               </div>
-            </div>
 
-            {/* Section 3: Trust Stats & Achievement Numbers */}
-            <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h4 className="text-sm font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4 text-amber-400" /> 3. Home & About Trust Stats Counters
-                </h4>
-                <span className="text-[11px] bg-amber-500/10 text-amber-300 px-2.5 py-0.5 rounded-full border border-amber-500/20 font-semibold">
-                  4 Achievements Cards
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-                <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1.5">
-                  <label className="block text-slate-300 font-bold">Stat 1</label>
-                  <input
-                    type="text"
-                    value={siteConfig.stat1Value || '120+'}
-                    onChange={(e) => setSiteConfig({ ...siteConfig, stat1Value: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 text-white text-xs font-bold rounded-lg"
-                  />
-                  <input
-                    type="text"
-                    value={siteConfig.stat1Label || 'Projects Delivered'}
-                    onChange={(e) => setSiteConfig({ ...siteConfig, stat1Label: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 text-slate-300 text-[11px] rounded-lg"
-                  />
+              {/* Section 3: Trust Stats */}
+              <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h4 className="text-sm font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                    <BarChart3 className="w-4 h-4 text-amber-400" /> 3. Trust Stats Counters
+                  </h4>
+                  <span className="text-[11px] bg-amber-500/10 text-amber-300 px-2.5 py-0.5 rounded-full border border-amber-500/20 font-semibold">4 Achievement Cards</span>
                 </div>
-
-                <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1.5">
-                  <label className="block text-slate-300 font-bold">Stat 2</label>
-                  <input
-                    type="text"
-                    value={siteConfig.stat2Value || '98%'}
-                    onChange={(e) => setSiteConfig({ ...siteConfig, stat2Value: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 text-white text-xs font-bold rounded-lg"
-                  />
-                  <input
-                    type="text"
-                    value={siteConfig.stat2Label || 'Satisfaction Rate'}
-                    onChange={(e) => setSiteConfig({ ...siteConfig, stat2Label: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 text-slate-300 text-[11px] rounded-lg"
-                  />
-                </div>
-
-                <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1.5">
-                  <label className="block text-slate-300 font-bold">Stat 3</label>
-                  <input
-                    type="text"
-                    value={siteConfig.stat3Value || '24-48 Hrs'}
-                    onChange={(e) => setSiteConfig({ ...siteConfig, stat3Value: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 text-white text-xs font-bold rounded-lg"
-                  />
-                  <input
-                    type="text"
-                    value={siteConfig.stat3Label || 'Turnaround Time'}
-                    onChange={(e) => setSiteConfig({ ...siteConfig, stat3Label: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 text-slate-300 text-[11px] rounded-lg"
-                  />
-                </div>
-
-                <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1.5">
-                  <label className="block text-slate-300 font-bold">Stat 4</label>
-                  <input
-                    type="text"
-                    value={siteConfig.stat4Value || '4.9 ⭐'}
-                    onChange={(e) => setSiteConfig({ ...siteConfig, stat4Value: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 text-white text-xs font-bold rounded-lg"
-                  />
-                  <input
-                    type="text"
-                    value={siteConfig.stat4Label || 'Vadodara Rating'}
-                    onChange={(e) => setSiteConfig({ ...siteConfig, stat4Label: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 text-slate-300 text-[11px] rounded-lg"
-                  />
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                  <StatPair label="Stat 1" valKey="stat1Value" labelKey="stat1Label" valDefault="120+" labelDefault="Projects Delivered" />
+                  <StatPair label="Stat 2" valKey="stat2Value" labelKey="stat2Label" valDefault="98%" labelDefault="Satisfaction Rate" />
+                  <StatPair label="Stat 3" valKey="stat3Value" labelKey="stat3Label" valDefault="24-48 Hrs" labelDefault="Turnaround Time" />
+                  <StatPair label="Stat 4" valKey="stat4Value" labelKey="stat4Label" valDefault="4.9 ⭐" labelDefault="Vadodara Rating" />
                 </div>
               </div>
-            </div>
 
-            {/* Section 4: Floating Action Button & Consultation Modal */}
-            <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h4 className="text-sm font-bold text-pink-400 uppercase tracking-wider flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4 text-pink-400" /> 4. Floating Action CTA & Consultation Modal Text
-                </h4>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                <div>
-                  <label className="block text-slate-200 font-bold mb-1">Floating CTA Button Label</label>
-                  <input
-                    type="text"
-                    value={siteConfig.floatingCtaText || ''}
-                    onChange={(e) => setSiteConfig({ ...siteConfig, floatingCtaText: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white font-bold outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
-                  />
+              {/* Section 4: Floating CTA & Modal */}
+              <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h4 className="text-sm font-bold text-pink-400 uppercase tracking-wider flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4 text-pink-400" /> 4. Floating CTA &amp; Consultation Modal Text
+                  </h4>
                 </div>
-
-                <div>
-                  <label className="block text-slate-200 font-bold mb-1">Consultation Modal Title</label>
-                  <input
-                    type="text"
-                    value={siteConfig.modalTitle || ''}
-                    onChange={(e) => setSiteConfig({ ...siteConfig, modalTitle: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-slate-200 font-bold mb-1">Consultation Modal Subtitle</label>
-                  <input
-                    type="text"
-                    value={siteConfig.modalSubtitle || ''}
-                    onChange={(e) => setSiteConfig({ ...siteConfig, modalSubtitle: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                  <InlineField label="Floating CTA Button Label" fieldKey="floatingCtaText" value={siteConfig.floatingCtaText || ''} />
+                  <InlineField label="Consultation Modal Title" fieldKey="modalTitle" value={siteConfig.modalTitle || ''} />
+                  <InlineField label="Consultation Modal Subtitle" fieldKey="modalSubtitle" value={siteConfig.modalSubtitle || ''} />
                 </div>
               </div>
-            </div>
 
-            {/* Section 5: Footer & Social Media Links */}
-            <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h4 className="text-sm font-bold text-purple-400 uppercase tracking-wider flex items-center gap-2">
-                  <Share2 className="w-4 h-4 text-purple-400" /> 5. Footer Text & Official Social Media Links
-                </h4>
-              </div>
-
-              <div className="space-y-4 text-xs">
-                <div>
-                  <label className="block text-slate-200 font-bold mb-1">Footer About Description Paragraph</label>
-                  <textarea
-                    rows={2}
-                    value={siteConfig.footerDescription || ''}
-                    onChange={(e) => setSiteConfig({ ...siteConfig, footerDescription: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 leading-relaxed transition-all"
-                  ></textarea>
+              {/* Section 5: Footer & Social */}
+              <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h4 className="text-sm font-bold text-purple-400 uppercase tracking-wider flex items-center gap-2">
+                    <Share2 className="w-4 h-4 text-purple-400" /> 5. Footer Text &amp; Social Media Links
+                  </h4>
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-slate-200 font-bold mb-1">Facebook URL</label>
-                    <input
-                      type="url"
-                      value={siteConfig.facebookUrl}
-                      onChange={(e) => setSiteConfig({ ...siteConfig, facebookUrl: e.target.value })}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-200 font-bold mb-1">Instagram URL</label>
-                    <input
-                      type="url"
-                      value={siteConfig.instagramUrl}
-                      onChange={(e) => setSiteConfig({ ...siteConfig, instagramUrl: e.target.value })}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-200 font-bold mb-1">LinkedIn URL</label>
-                    <input
-                      type="url"
-                      value={siteConfig.linkedinUrl}
-                      onChange={(e) => setSiteConfig({ ...siteConfig, linkedinUrl: e.target.value })}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
-                    />
+                <div className="space-y-4 text-xs">
+                  <InlineField label="Footer About Description" fieldKey="footerDescription" value={siteConfig.footerDescription || ''} isTextarea hint="Shown in footer brand column." />
+                  <InlineField label="Copyright Text" fieldKey="copyrightText" value={siteConfig.copyrightText || ''} hint="Bottom footer copyright line." />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <InlineField label="Facebook URL" fieldKey="facebookUrl" value={siteConfig.facebookUrl} type="url" accentColor="blue" />
+                    <InlineField label="Instagram URL" fieldKey="instagramUrl" value={siteConfig.instagramUrl} type="url" accentColor="purple" />
+                    <InlineField label="LinkedIn URL" fieldKey="linkedinUrl" value={siteConfig.linkedinUrl} type="url" accentColor="blue" />
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Section 6: Live Google Search Snippet Preview Box */}
-            <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h4 className="text-sm font-bold text-blue-400 uppercase tracking-wider flex items-center gap-2">
-                  <Search className="w-4 h-4 text-blue-400" /> 6. Google Search Live Preview Box
-                </h4>
-                <span className="text-[11px] bg-blue-500/10 text-blue-300 px-2.5 py-0.5 rounded-full border border-blue-500/20 font-semibold">
-                  Google Rich Snippet Simulation
-                </span>
-              </div>
-
-              <div className="bg-white p-5 rounded-2xl space-y-2 border border-slate-200 text-left font-sans text-xs">
-                <div className="flex items-center gap-2 text-[11px] text-slate-600">
-                  <span className="w-4 h-4 rounded-full bg-blue-600 text-white text-[9px] font-bold flex items-center justify-center">A</span>
-                  <span className="text-slate-800 font-medium">https://arrjs-technologies.vercel.app</span>
-                  <span className="text-slate-400">› vadodara</span>
+              {/* Section 6: Google Search Preview */}
+              <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h4 className="text-sm font-bold text-blue-400 uppercase tracking-wider flex items-center gap-2">
+                    <Search className="w-4 h-4 text-blue-400" /> 6. Google Search Live Preview
+                  </h4>
+                  <span className="text-[11px] bg-blue-500/10 text-blue-300 px-2.5 py-0.5 rounded-full border border-blue-500/20 font-semibold">Google Rich Snippet Simulation</span>
                 </div>
-                <h3 className="text-base sm:text-lg font-normal text-blue-800 hover:underline cursor-pointer leading-snug">
-                  {siteConfig.customSeoTitle || `${siteConfig.companyName} - IT Services, Computer Repair & Custom PC Build Vadodara`}
-                </h3>
-                <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">
-                  {siteConfig.customSeoDescription || `${siteConfig.topBannerText}. ${siteConfig.tagline}. Contact: ${siteConfig.officialPhone}.`}
-                </p>
+                <div className="space-y-3 text-xs">
+                  <InlineField label="SEO Page Title" fieldKey="customSeoTitle" value={siteConfig.customSeoTitle || ''} hint="Shown in Google search results as page title." />
+                  <InlineField label="SEO Meta Description" fieldKey="customSeoDescription" value={siteConfig.customSeoDescription || ''} isTextarea hint="Description shown in Google snippets (150–160 chars ideal)." />
+                  <InlineField label="SEO Keywords (comma-separated)" fieldKey="customSeoKeywords" value={siteConfig.customSeoKeywords || ''} hint="Helps Google understand your services." />
+                </div>
+
+                {/* Live Preview */}
+                <div className="bg-white p-5 rounded-2xl space-y-2 border border-slate-200 text-left font-sans text-xs mt-2">
+                  <div className="flex items-center gap-2 text-[11px] text-slate-600">
+                    <span className="w-4 h-4 rounded-full bg-blue-600 text-white text-[9px] font-bold flex items-center justify-center">A</span>
+                    <span className="text-slate-800 font-medium">https://arrjs-technologies.vercel.app</span>
+                    <span className="text-slate-400">› vadodara</span>
+                  </div>
+                  <h3 className="text-base sm:text-lg font-normal text-blue-800 hover:underline cursor-pointer leading-snug">
+                    {siteConfig.customSeoTitle || `${siteConfig.companyName} - IT Services, Computer Repair & Custom PC Build Vadodara`}
+                  </h3>
+                  <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">
+                    {siteConfig.customSeoDescription || `${siteConfig.topBannerText}. ${siteConfig.tagline}. Contact: ${siteConfig.officialPhone}.`}
+                  </p>
+                </div>
+              </div>
+
+              {/* Save Bar */}
+              <div className="pt-4 border-t border-slate-800 flex justify-between items-center">
+                <div className="text-xs text-emerald-400 font-semibold flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span>Click any field to edit • Enter or ✓ to save • Changes sync live</span>
+                </div>
+                <button
+                  onClick={handleSaveSiteConfig}
+                  className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-6 py-3 rounded-xl shadow-lg transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>Save All Customization Settings</span>
+                </button>
               </div>
             </div>
-
-            {/* Save Button Bar */}
-            <div className="pt-4 border-t border-slate-800 flex justify-between items-center">
-              <div className="text-xs text-emerald-400 font-semibold flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>Real-Time Live Sync Active • Changes update automatically across the site</span>
-              </div>
-
-              <button
-                onClick={handleSaveSiteConfig}
-                className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-6 py-3 rounded-xl shadow-lg transition-all flex items-center gap-2 cursor-pointer"
-              >
-                <Save className="w-4 h-4" />
-                <span>Save All Customization Settings</span>
-              </button>
-            </div>
-
-          </div>
-        )}
+          );
+        })()}
 
         {/* TAB 3: SERVICES CATALOG MANAGER */}
         {activeTab === 'services' && (
