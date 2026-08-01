@@ -10,27 +10,37 @@ import { PortfolioView } from './components/PortfolioView';
 import { ContactView } from './components/ContactView';
 import { AdminView } from './components/AdminView';
 import { ConsultationModal } from './components/ConsultationModal';
-import { MessageSquare, PhoneCall } from 'lucide-react';
+import { PhoneCall } from 'lucide-react';
 import { updatePageSEO } from './utils/seo';
+import { useSiteConfig } from './hooks/useSiteConfig';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<PageView>('home');
   const [consultationModalOpen, setConsultationModalOpen] = useState(false);
   const [preSelectedService, setPreSelectedService] = useState('');
+  const siteConfig = useSiteConfig();
 
-  // Check URL path/hash for secret admin trigger e.g. /#arrjs or /arrjs
+  // Check URL hash for secret admin trigger: /#arrjs
   useEffect(() => {
     const checkAdminRoute = () => {
-      const path = window.location.pathname.toLowerCase();
       const hash = window.location.hash.toLowerCase();
+      const path = window.location.pathname.toLowerCase();
       const search = window.location.search.toLowerCase();
 
-      if (path.includes('/arrjs') || hash.includes('arrjs') || search.includes('arrjs') || search.includes('admin')) {
+      if (
+        hash.includes('arrjs') ||
+        path.includes('/arrjs') ||
+        search.includes('arrjs') ||
+        search.includes('admin')
+      ) {
         setCurrentView('admin');
       }
     };
 
+    // Check immediately on mount
     checkAdminRoute();
+
+    // Listen for hash changes (e.g. user types /#arrjs in address bar)
     window.addEventListener('hashchange', checkAdminRoute);
     window.addEventListener('popstate', checkAdminRoute);
     return () => {
@@ -39,10 +49,13 @@ export default function App() {
     };
   }, []);
 
-  // Scroll to top on view change
+  // Update SEO meta tags on each view change
   useEffect(() => {
+    if (currentView !== 'admin') {
+      updatePageSEO(siteConfig, currentView);
+    }
     window.scrollTo(0, 0);
-  }, [currentView]);
+  }, [currentView, siteConfig]);
 
   const handleOpenConsultation = (serviceName: string = '') => {
     setPreSelectedService(serviceName);
@@ -109,14 +122,14 @@ export default function App() {
         onOpenConsultation={() => handleOpenConsultation('')}
       />
 
-      {/* Interactive Free Consultation Popup Modal */}
+      {/* Consultation Modal */}
       <ConsultationModal
         isOpen={consultationModalOpen}
         onClose={() => setConsultationModalOpen(false)}
         preSelectedService={preSelectedService}
       />
 
-      {/* Floating Action Button for Quick Consultation (Hidden on Admin View) */}
+      {/* Floating Action Button — Hidden on Admin View */}
       {currentView !== 'admin' && (
         <div className="fixed bottom-6 right-6 z-40 animate-float">
           <button
@@ -128,13 +141,7 @@ export default function App() {
               <PhoneCall className="w-3.5 h-3.5 text-blue-100" />
             </div>
             <span className="text-xs sm:text-sm font-bold tracking-wide text-slate-100 group-hover:text-white">
-              {React.useMemo(() => {
-                const saved = localStorage.getItem('arrjs_site_config');
-                if (saved) {
-                  try { return JSON.parse(saved).floatingCtaText || 'Get Free Consultation'; } catch (e) {}
-                }
-                return 'Get Free Consultation';
-              }, [])}
+              {siteConfig.floatingCtaText || 'Get Free Consultation'}
             </span>
           </button>
         </div>
@@ -143,3 +150,4 @@ export default function App() {
     </div>
   );
 }
+
