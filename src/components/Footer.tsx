@@ -35,29 +35,17 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentView, onOpenConsultati
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
               <img 
-                src="/assets/logo/logo.png" 
+                src="/assets/logo/logo-dark.png" 
                 alt="ARRJS Technologies Logo" 
-                className="h-10 sm:h-12 w-auto object-contain bg-white rounded-lg px-2 py-1 shadow-xs"
+                className="h-10 sm:h-12 w-auto object-contain"
                 onError={(e) => {
                   const target = e.currentTarget;
-                  if (!target.dataset.triedSvg) {
-                    target.dataset.triedSvg = 'true';
+                  if (!target.dataset.triedFallback) {
+                    target.dataset.triedFallback = 'true';
                     target.src = '/assets/logo/logo.svg';
-                  } else {
-                    target.style.display = 'none';
-                    const fallback = target.nextElementSibling as HTMLElement;
-                    if (fallback) fallback.style.display = 'flex';
                   }
                 }}
               />
-              <div className="hidden items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md">
-                  <Laptop className="w-5 h-5 text-blue-200" />
-                </div>
-                <span className="font-bold text-xl text-white tracking-tight">
-                  ARRJS <span className="text-blue-400">Technologies</span>
-                </span>
-              </div>
             </div>
             
             <p className="text-slate-400 text-sm leading-relaxed max-w-md">

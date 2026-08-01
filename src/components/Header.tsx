@@ -81,18 +81,14 @@ export const Header: React.FC<HeaderProps> = ({
             aria-label="ARRJS Technologies Home"
           >
             <img 
-              src="/assets/logo/logo.png" 
+              src={isDarkMode ? "/assets/logo/logo-dark.png" : "/assets/logo/logo.svg"} 
               alt="ARRJS Technologies Logo" 
-              className={`h-10 sm:h-12 w-auto object-contain group-hover:scale-[1.02] transition-transform ${isDarkMode ? 'bg-white rounded-lg px-2 py-1 shadow-xs' : ''}`}
+              className="h-9 sm:h-11 w-auto object-contain group-hover:scale-[1.02] transition-transform"
               onError={(e) => {
                 const target = e.currentTarget;
-                if (!target.dataset.triedSvg) {
-                  target.dataset.triedSvg = 'true';
+                if (!target.dataset.triedFallback) {
+                  target.dataset.triedFallback = 'true';
                   target.src = '/assets/logo/logo.svg';
-                } else {
-                  target.style.display = 'none';
-                  const fallback = target.nextElementSibling as HTMLElement;
-                  if (fallback) fallback.style.display = 'flex';
                 }
               }}
             />
