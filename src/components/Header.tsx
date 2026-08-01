@@ -81,16 +81,9 @@ export const Header: React.FC<HeaderProps> = ({
             aria-label="ARRJS Technologies Home"
           >
             <img 
-              src={isDarkMode ? "/assets/logo/logo-dark.png" : "/assets/logo/logo.svg"} 
+              src="/assets/logo/logo.svg" 
               alt="ARRJS Technologies Logo" 
               className="h-9 sm:h-11 w-auto object-contain group-hover:scale-[1.02] transition-transform"
-              onError={(e) => {
-                const target = e.currentTarget;
-                if (!target.dataset.triedFallback) {
-                  target.dataset.triedFallback = 'true';
-                  target.src = '/assets/logo/logo.svg';
-                }
-              }}
             />
             {/* Fallback if logo image fails to load */}
             <div className="hidden items-center gap-3">

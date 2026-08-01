@@ -36,16 +36,9 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentView, onOpenConsultati
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
               <img 
-                src={isDarkMode ? "/assets/logo/logo-dark.png" : "/assets/logo/logo.svg"} 
+                src="/assets/logo/logo.svg" 
                 alt="ARRJS Technologies Logo" 
                 className="h-10 sm:h-12 w-auto object-contain"
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  if (!target.dataset.triedFallback) {
-                    target.dataset.triedFallback = 'true';
-                    target.src = '/assets/logo/logo.svg';
-                  }
-                }}
               />
             </div>
             
