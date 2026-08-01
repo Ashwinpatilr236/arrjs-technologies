@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PageView, AdminLead, ServiceItem, StoreProduct, DemoProject, SiteConfig } from '../types';
 import { SERVICES_DATA } from '../data/services';
 import { STORE_PRODUCTS } from '../data/store';
@@ -209,7 +209,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (passcode === 'admin123' || passcode.trim() === 'admin') {
+    if (passcode === 'Renuka@2306') {
       setIsAuthenticated(true);
       sessionStorage.setItem('arrjs_admin_auth', 'true');
       setPasscodeError(false);
@@ -218,11 +218,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
     }
   };
 
-  const handleQuickDemoUnlock = () => {
-    setIsAuthenticated(true);
-    sessionStorage.setItem('arrjs_admin_auth', 'true');
-    setPasscodeError(false);
-  };
+  // Quick unlock removed — password protected
 
   const handleLogout = () => {
     setIsAuthenticated(false);
@@ -400,14 +396,14 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
               <input
                 type="password"
                 required
-                placeholder="Enter passcode (e.g. admin123)"
+                placeholder="Enter admin passcode"
                 value={passcode}
                 onChange={(e) => setPasscode(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:ring-2 focus:ring-blue-500 outline-hidden"
               />
               {passcodeError && (
                 <p className="text-xs text-red-400 mt-1.5 flex items-center gap-1">
-                  <AlertCircle className="w-3.5 h-3.5" /> Incorrect passcode. Try <strong>admin123</strong> or click Quick Unlock.
+                  <AlertCircle className="w-3.5 h-3.5" /> Incorrect passcode. Please try again.
                 </p>
               )}
             </div>
@@ -421,14 +417,10 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
             </button>
           </form>
 
-          <div className="pt-4 border-t border-slate-700/80">
-            <button
-              onClick={handleQuickDemoUnlock}
-              className="w-full bg-slate-700/60 hover:bg-slate-700 text-slate-200 font-semibold py-2.5 rounded-xl text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <Sparkles className="w-4 h-4 text-amber-400" />
-              <span>Quick Demo Unlock (One-Click)</span>
-            </button>
+          <div className="pt-4 border-t border-slate-700/80 text-center">
+            <p className="text-[11px] text-slate-500">
+              🔐 Authorized access only • Contact administrator for passcode
+            </p>
           </div>
 
           <div className="text-[11px] text-slate-400">
