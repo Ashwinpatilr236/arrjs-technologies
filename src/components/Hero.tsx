@@ -197,21 +197,7 @@ export const Hero: React.FC<HeroProps> = ({ setCurrentView, onOpenConsultation }
           </div>
         </div>
 
-        {/* Animated Scroll-Down Indicator */}
-        <div className="mt-10 flex justify-center">
-          <button
-            onClick={() => {
-              window.scrollTo({ top: window.innerHeight * 0.7, behavior: 'smooth' });
-            }}
-            className="group flex flex-col items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer"
-            aria-label="Scroll down to services"
-          >
-            <span className="tracking-wider uppercase text-[11px] font-bold group-hover:text-blue-300 transition-colors">Scroll Down</span>
-            <div className="w-8 h-8 rounded-full bg-slate-800/90 border border-slate-700/80 flex items-center justify-center animate-bounce-slow group-hover:border-blue-500/60 group-hover:bg-blue-600/20 transition-all shadow-md">
-              <ChevronDown className="w-4 h-4 text-blue-400 group-hover:text-blue-300" />
-            </div>
-          </button>
-        </div>
+
 
       </div>
     </section>
