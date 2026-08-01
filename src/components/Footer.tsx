@@ -33,11 +33,11 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentView, onOpenConsultati
           
           {/* Column 1: Brand & Positioning */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center gap-3">
+            <div className="bg-white px-3.5 py-2 rounded-xl shadow-md border border-slate-200/20 inline-flex items-center group cursor-pointer hover:scale-[1.02] transition-transform">
               <img 
                 src="/assets/logo/logo.svg" 
                 alt="ARRJS Technologies Logo" 
-                className="h-10 sm:h-12 w-auto object-contain brightness-125 hover:scale-105 transition-transform"
+                className="h-8 sm:h-10 w-auto object-contain"
               />
             </div>
             
