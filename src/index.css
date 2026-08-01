@@ -16,84 +16,93 @@
 }
 
 /* ==========================================================================
-   ULTIMATE 100% DARK MODE SYSTEM (HIGH SPECIFICITY FOR ALL COMPONENTS)
+   TRUE OLED / DEEP BLACK DARK MODE THEME SYSTEM
    ========================================================================== */
 
-html.dark,
-html.dark body {
-  background-color: #0b0f19 !important;
-  color: #f8fafc !important;
+html.dark {
+  color-scheme: dark;
+  background-color: #030712 !important;
+  color: #ffffff !important;
 }
 
-/* Background Overrides in Dark Mode */
+html.dark body {
+  background-color: #030712 !important;
+  color: #ffffff !important;
+}
+
+/* Deep Black Background Overrides */
 html.dark .bg-white {
-  background-color: #111827 !important;
-  color: #f8fafc !important;
+  background-color: #090d16 !important;
+  color: #ffffff !important;
+}
+
+html.dark .bg-white\/95 {
+  background-color: rgba(3, 7, 18, 0.95) !important;
 }
 
 html.dark .bg-slate-50 {
-  background-color: #0f172a !important;
-  color: #f8fafc !important;
+  background-color: #050811 !important;
+  color: #ffffff !important;
 }
 
 html.dark .bg-slate-100 {
-  background-color: #1e293b !important;
-  color: #f8fafc !important;
+  background-color: #0b0f19 !important;
+  color: #ffffff !important;
 }
 
 html.dark .bg-slate-100\/60 {
-  background-color: #0b0f19 !important;
+  background-color: #030712 !important;
 }
 
 html.dark .bg-slate-200 {
-  background-color: #334155 !important;
+  background-color: #1e293b !important;
 }
 
 html.dark .bg-slate-200\/60 {
-  background-color: #1e293b !important;
+  background-color: #0f172a !important;
 }
 
 html.dark .bg-blue-50,
 html.dark .bg-blue-50\/70 {
-  background-color: rgba(30, 58, 138, 0.4) !important;
-  color: #bfdbfe !important;
+  background-color: rgba(15, 23, 42, 0.8) !important;
+  color: #93c5fd !important;
 }
 
 html.dark .bg-emerald-50 {
-  background-color: rgba(6, 78, 59, 0.4) !important;
+  background-color: rgba(6, 78, 59, 0.3) !important;
   color: #a7f3d0 !important;
 }
 
 html.dark .bg-amber-50 {
-  background-color: rgba(120, 53, 15, 0.4) !important;
+  background-color: rgba(120, 53, 15, 0.3) !important;
   color: #fde68a !important;
 }
 
 html.dark .bg-indigo-50 {
-  background-color: rgba(49, 46, 129, 0.4) !important;
+  background-color: rgba(49, 46, 129, 0.3) !important;
   color: #c7d2fe !important;
 }
 
 html.dark .bg-purple-50 {
-  background-color: rgba(88, 28, 135, 0.4) !important;
+  background-color: rgba(88, 28, 135, 0.3) !important;
   color: #e9d5ff !important;
 }
 
-/* Text Overrides in Dark Mode */
+/* Pure High-Contrast White & Silver Text */
 html.dark .text-slate-900 {
-  color: #f8fafc !important;
+  color: #ffffff !important;
 }
 
 html.dark .text-slate-800 {
-  color: #f1f5f9 !important;
+  color: #f8fafc !important;
 }
 
 html.dark .text-slate-700 {
-  color: #cbd5e1 !important;
+  color: #e2e8f0 !important;
 }
 
 html.dark .text-slate-600 {
-  color: #94a3b8 !important;
+  color: #cbd5e1 !important;
 }
 
 html.dark .text-slate-500 {
@@ -116,7 +125,7 @@ html.dark .text-blue-700 {
   color: #60a5fa !important;
 }
 
-/* Borders & Dividers in Dark Mode */
+/* Sleek Dark Borders */
 html.dark .border-slate-100,
 html.dark .border-slate-200,
 html.dark .border-slate-200\/80,
@@ -127,13 +136,13 @@ html.dark .border-blue-200 {
   border-color: #1e293b !important;
 }
 
-/* Form Controls */
+/* Form Controls (Inputs, Selects, Textareas) in OLED Black */
 html.dark input,
 html.dark textarea,
 html.dark select {
-  background-color: #0f172a !important;
-  color: #f8fafc !important;
-  border-color: #334155 !important;
+  background-color: #050811 !important;
+  color: #ffffff !important;
+  border-color: #1e293b !important;
 }
 
 html.dark input::placeholder,
@@ -141,12 +150,12 @@ html.dark textarea::placeholder {
   color: #64748b !important;
 }
 
-/* Cards & Containers Shadows */
+/* Glowing OLED Dark Shadows */
 html.dark .shadow-xs,
 html.dark .shadow-sm,
 html.dark .shadow-md,
 html.dark .shadow-lg,
 html.dark .shadow-xl,
 html.dark .shadow-2xl {
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7), 0 8px 10px -6px rgba(0, 0, 0, 0.6) !important;
+  box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.8), 0 8px 10px -6px rgba(0, 0, 0, 0.7) !important;
 }
