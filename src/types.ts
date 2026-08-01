@@ -25,6 +25,8 @@ export interface ServiceItem {
   locationNote?: string;
   iconName: string;
   estimatedTimeline?: string;
+  badge?: string;
+  badges?: string[];
 }
 
 export interface StoreProduct {
@@ -40,6 +42,7 @@ export interface StoreProduct {
   affiliateUrlFlipkart?: string;
   imageUrl: string;
   badge?: string;
+  badges?: string[];
 }
 
 export interface DemoProject {
@@ -53,6 +56,8 @@ export interface DemoProject {
   image: string;
   techStack: string[];
   previewUrl?: string;
+  badge?: string;
+  badges?: string[];
   demoDetails: {
     challenge: string;
     solution: string;
@@ -66,6 +71,59 @@ export interface ServiceEstimateItem {
   category: 'web' | 'computer' | 'networking';
   baseEstimate: string;
   timeframe: string;
+}
+
+export interface SiteConfig {
+  companyName: string;
+  tagline: string;
+  officialEmail: string;
+  officialPhone: string;
+  officialWhatsApp: string;
+  operatingHours: string;
+  locationCity: string;
+  officeAddress: string;
+  
+  // Banner & Hero
+  showTopBanner: boolean;
+  topBannerText: string;
+  heroHeadline: string;
+  heroHighlightText: string;
+  heroSubtitle: string;
+  heroBadgeText: string;
+  heroPrimaryCtaText: string;
+  heroSecondaryCtaText: string;
+  
+  // Trust Stats
+  stat1Value: string;
+  stat1Label: string;
+  stat2Value: string;
+  stat2Label: string;
+  stat3Value: string;
+  stat3Label: string;
+  stat4Value: string;
+  stat4Label: string;
+  
+  // About Page
+  aboutHeadline: string;
+  aboutMissionText: string;
+  aboutStoryText: string;
+  
+  // Floating Button & Modal
+  floatingCtaText: string;
+  modalTitle: string;
+  modalSubtitle: string;
+  
+  // Footer & Social
+  footerDescription: string;
+  copyrightText: string;
+  facebookUrl: string;
+  instagramUrl: string;
+  linkedinUrl: string;
+  
+  // SEO Meta
+  customSeoTitle: string;
+  customSeoDescription: string;
+  customSeoKeywords: string;
 }
 
 export interface LeadFormData {

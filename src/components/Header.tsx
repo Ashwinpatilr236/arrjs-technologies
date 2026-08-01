@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSiteConfig } from '../hooks/useSiteConfig';
 import { PageView } from '../types';
 import { 
   Laptop, 
@@ -43,6 +44,9 @@ export const Header: React.FC<HeaderProps> = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Read dynamic site config with real-time live sync
+  const siteConfig = useSiteConfig();
+
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs transition-all">
       {/* Top Notification Bar for Vadodara Service */}
@@ -50,16 +54,16 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-1 text-center sm:text-left">
           <div className="flex items-center gap-2 justify-center">
             <span className="inline-flex items-center gap-1 bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full text-[11px] font-bold border border-emerald-500/30">
-              <MapPin className="w-3 h-3 text-emerald-400" /> Vadodara
+              <MapPin className="w-3 h-3 text-emerald-400" /> {siteConfig.locationCity || 'Vadodara'}
             </span>
-            <span className="font-semibold text-slate-200">Doorstep Tech Service Available for Computer Repair, PC Builds & Networking</span>
+            <span className="font-semibold text-slate-200">{siteConfig.topBannerText}</span>
           </div>
           <div className="hidden md:flex items-center gap-4 text-slate-300 text-[11px]">
-            <a href="mailto:arrjstechnologies@gmail.com" className="hover:text-blue-300 transition-colors flex items-center gap-1.5 font-medium">
-              <Mail className="w-3.5 h-3.5 text-blue-400" /> arrjstechnologies@gmail.com
+            <a href={`mailto:${siteConfig.officialEmail}`} className="hover:text-blue-300 transition-colors flex items-center gap-1.5 font-medium">
+              <Mail className="w-3.5 h-3.5 text-blue-400" /> {siteConfig.officialEmail}
             </a>
             <span className="text-slate-700">|</span>
-            <span className="text-slate-300">Mon - Sat: 9:00 AM - 7:00 PM</span>
+            <span className="text-slate-300">{siteConfig.operatingHours}</span>
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SERVICES_DATA } from '../data/services';
-import { PageView } from '../types';
+import { PageView, ServiceItem } from '../types';
 import { 
   Globe, 
   Wrench, 
@@ -11,7 +11,8 @@ import {
   ArrowRight, 
   ShieldAlert,
   Search,
-  PhoneCall
+  PhoneCall,
+  Sparkles
 } from 'lucide-react';
 
 interface ServicesViewProps {
@@ -26,54 +27,60 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
   const [activeTab, setActiveTab] = useState<'all' | 'web' | 'computer' | 'networking'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredServices = SERVICES_DATA.filter(service => {
+  // Read dynamic services list from localStorage
+  const servicesList: ServiceItem[] = React.useMemo(() => {
+    const saved = localStorage.getItem('arrjs_admin_services');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return SERVICES_DATA;
+  }, []);
+
+  const filteredServices = servicesList.filter((service) => {
     const matchesTab = activeTab === 'all' || service.category === activeTab;
-    const matchesSearch = service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          service.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = 
+      service.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      service.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesTab && matchesSearch;
   });
 
   return (
-    <div className="space-y-12 pb-16">
-      
-      {/* Header Banner */}
-      <section className="bg-slate-900 text-white py-12 sm:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+    <div className="bg-slate-50 min-h-screen py-10 sm:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+        
+        {/* Page Header Banner */}
+        <div className="bg-slate-900 text-white rounded-3xl p-8 sm:p-12 text-center space-y-4 shadow-xl relative overflow-hidden">
           <div className="inline-flex items-center gap-1.5 bg-blue-500/20 text-blue-300 text-xs font-semibold px-3.5 py-1 rounded-full border border-blue-400/30">
-            <Wrench className="w-4 h-4 text-blue-400" /> Technology Services
+            <Wrench className="w-4 h-4 text-blue-400" /> Professional Solutions Catalog
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
-            Our Professional Services
+            Our Technology Services
           </h1>
           <p className="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-            Practical web development, computer builds, hardware repairs, and networking solutions tailored for your business or home.
+            Custom Web Development available worldwide, plus on-site Computer Repair, Custom PC Builds, and Networking home services in Vadodara.
           </p>
         </div>
-      </section>
 
-      {/* Main Container */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        
-        {/* Important Location Clarification Card */}
+        {/* Location Notice Card */}
         <div className="bg-blue-50 border border-blue-200 p-5 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-start gap-3">
             <MapPin className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
             <div className="text-xs sm:text-sm text-slate-800 space-y-1">
               <p className="font-bold text-slate-900">
-                Service Location Notice
+                Service Coverage Notice
               </p>
               <p className="text-slate-600 leading-relaxed">
-                • <strong>Web Solutions</strong> are delivered remotely across India and internationally.<br />
-                • <strong>Computer Solutions</strong> and <strong>Networking Services</strong> are available as doorstep/on-site services <strong>strictly in Vadodara, Gujarat</strong>.
+                • <strong>Web Solutions</strong> are delivered remotely across India & internationally.<br />
+                • <strong>Computer Solutions</strong> & <strong>Networking Services</strong> are doorstep services <strong>strictly in Vadodara, Gujarat</strong>.
               </p>
             </div>
           </div>
 
           <button
-            onClick={() => onOpenConsultationWithService('Vadodara On-Site Enquiry')}
+            onClick={() => onOpenConsultationWithService('Vadodara On-Site Service')}
             className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-colors shrink-0 shadow-xs cursor-pointer"
           >
-            Inquire For Service
+            Inquire Doorstep Service
           </button>
         </div>
 
@@ -90,7 +97,7 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
                   : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
-              All Services ({SERVICES_DATA.length})
+              All Services ({servicesList.length})
             </button>
             <button
               onClick={() => setActiveTab('web')}
@@ -145,11 +152,24 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
               key={service.id}
               className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-5 relative overflow-hidden"
             >
-              {/* Top Category Badge */}
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-full">
-                  {service.categoryTitle}
-                </span>
+              {/* Top Category & Trending Tag Badges */}
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[11px] font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-full">
+                    {service.categoryTitle}
+                  </span>
+                  {(() => {
+                    const tagList = (service.badges && service.badges.length > 0)
+                      ? service.badges
+                      : (service.badge ? service.badge.split(',').map(b => b.trim()).filter(Boolean) : []);
+                    
+                    return tagList.map((tag, idx) => (
+                      <span key={idx} className="text-[10px] font-extrabold text-amber-950 bg-amber-100 border border-amber-300 px-2.5 py-0.5 rounded-full shadow-2xs flex items-center gap-1">
+                        {tag}
+                      </span>
+                    ));
+                  })()}
+                </div>
 
                 {service.isLocalOnly ? (
                   <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full flex items-center gap-1">
@@ -189,7 +209,7 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
               <div className="pt-3 border-t border-slate-100 space-y-3">
                 <div className="flex items-center justify-between text-[11px] text-slate-500">
                   <span className="flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5 text-slate-400" /> {service.estimatedTimeline}
+                    <Clock className="w-3.5 h-3.5 text-slate-400" /> {service.estimatedTimeline || '2-5 days'}
                   </span>
                 </div>
 
@@ -207,15 +227,14 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
         </div>
 
         {/* Disclaimer for Computer Repair */}
-        <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl text-xs text-slate-600 flex items-center gap-3">
+        <div className="bg-slate-100 border border-slate-200 p-4 rounded-2xl text-xs text-slate-600 flex items-center gap-3">
           <ShieldAlert className="w-5 h-5 text-blue-600 shrink-0" />
           <p>
             <strong>Note on Computer Repair:</strong> ARRJS Technologies provides software diagnostics, component replacement, OS installation, and hardware upgrades. We explicitly <strong>exclude chip-level repair</strong> to maintain quality and reliability.
           </p>
         </div>
 
-      </section>
-
+      </div>
     </div>
   );
 };

@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { PageView, AdminLead } from '../types';
+import { PageView, AdminLead, ServiceItem, StoreProduct, DemoProject, SiteConfig } from '../types';
+import { SERVICES_DATA } from '../data/services';
+import { STORE_PRODUCTS } from '../data/store';
+import { DEMO_PROJECTS } from '../data/portfolio';
+import { DEFAULT_SITE_CONFIG } from '../data/config';
 import { 
   Lock, 
   Unlock, 
@@ -24,14 +28,26 @@ import {
   BarChart3,
   Globe,
   Wrench,
-  AlertCircle
+  AlertCircle,
+  Briefcase,
+  Edit3,
+  Eye,
+  Sliders,
+  Settings,
+  X,
+  ExternalLink,
+  Layers,
+  Save,
+  Share2,
+  FileText,
+  Link as LinkIcon
 } from 'lucide-react';
 
 interface AdminViewProps {
   setCurrentView: (view: PageView) => void;
 }
 
-// Initial Realistic Seed Leads
+// Initial Seed Leads
 const INITIAL_DEMO_LEADS: AdminLead[] = [
   {
     id: 'lead-101',
@@ -94,24 +110,65 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
   const [passcode, setPasscode] = useState('');
   const [passcodeError, setPasscodeError] = useState(false);
 
-  // Leads State synced with localStorage
+  // Active Tab State (Defaults to 'customizer' for immediate view)
+  const [activeTab, setActiveTab] = useState<'leads' | 'services' | 'store' | 'portfolio' | 'customizer' | 'settings'>(() => {
+    const hash = window.location.hash.toLowerCase();
+    if (hash.includes('leads')) return 'leads';
+    if (hash.includes('services')) return 'services';
+    if (hash.includes('store')) return 'store';
+    if (hash.includes('portfolio')) return 'portfolio';
+    return 'customizer';
+  });
+
+  // Leads State
   const [leads, setLeads] = useState<AdminLead[]>(() => {
     const saved = localStorage.getItem('arrjs_leads');
     if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error("Failed to parse saved leads", e);
-      }
+      try { return JSON.parse(saved); } catch (e) {}
     }
     return INITIAL_DEMO_LEADS;
   });
 
-  const [activeTab, setActiveTab] = useState<'leads' | 'store' | 'services' | 'settings'>('leads');
+  // Services State
+  const [servicesList, setServicesList] = useState<ServiceItem[]>(() => {
+    const saved = localStorage.getItem('arrjs_admin_services');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return SERVICES_DATA;
+  });
+
+  // Store Products State
+  const [storeList, setStoreList] = useState<StoreProduct[]>(() => {
+    const saved = localStorage.getItem('arrjs_admin_store');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return STORE_PRODUCTS;
+  });
+
+  // Portfolio Projects State
+  const [portfolioList, setPortfolioList] = useState<DemoProject[]>(() => {
+    const saved = localStorage.getItem('arrjs_admin_portfolio');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return DEMO_PROJECTS;
+  });
+
+  // Full Site Customization Config State
+  const [siteConfig, setSiteConfig] = useState<SiteConfig>(() => {
+    const saved = localStorage.getItem('arrjs_site_config');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return DEFAULT_SITE_CONFIG;
+  });
+
   const [statusFilter, setStatusFilter] = useState<'all' | 'new' | 'contacted' | 'quoted' | 'completed'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Add Manual Lead Form State
+  // Modals State
   const [showAddLeadModal, setShowAddLeadModal] = useState(false);
   const [newLeadForm, setNewLeadForm] = useState({
     name: '',
@@ -123,10 +180,32 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
     message: ''
   });
 
-  // Save leads to localStorage whenever state changes
+  // Full Item Editor Modals State
+  const [editingService, setEditingService] = useState<ServiceItem | null>(null);
+  const [editingStoreProduct, setEditingStoreProduct] = useState<StoreProduct | null>(null);
+  const [editingPortfolioProject, setEditingPortfolioProject] = useState<DemoProject | null>(null);
+
+  // Sync to localStorage
   useEffect(() => {
     localStorage.setItem('arrjs_leads', JSON.stringify(leads));
   }, [leads]);
+
+  useEffect(() => {
+    localStorage.setItem('arrjs_admin_services', JSON.stringify(servicesList));
+  }, [servicesList]);
+
+  useEffect(() => {
+    localStorage.setItem('arrjs_admin_store', JSON.stringify(storeList));
+  }, [storeList]);
+
+  useEffect(() => {
+    localStorage.setItem('arrjs_admin_portfolio', JSON.stringify(portfolioList));
+  }, [portfolioList]);
+
+  useEffect(() => {
+    localStorage.setItem('arrjs_site_config', JSON.stringify(siteConfig));
+    window.dispatchEvent(new Event('arrjs_site_config_updated'));
+  }, [siteConfig]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,13 +229,13 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
     sessionStorage.removeItem('arrjs_admin_auth');
   };
 
-  const handleUpdateStatus = (id: string, newStatus: AdminLead['status']) => {
-    setLeads(prev => prev.map(lead => lead.id === id ? { ...lead, status: newStatus } : lead));
+  const handleUpdateLeadStatus = (id: string, newStatus: AdminLead['status']) => {
+    setLeads(prev => prev.map(l => l.id === id ? { ...l, status: newStatus } : l));
   };
 
   const handleDeleteLead = (id: string) => {
     if (window.confirm("Are you sure you want to delete this lead?")) {
-      setLeads(prev => prev.filter(lead => lead.id !== id));
+      setLeads(prev => prev.filter(l => l.id !== id));
     }
   };
 
@@ -189,21 +268,98 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
     });
   };
 
-  const handleResetDemoData = () => {
-    if (window.confirm("Reset all leads data to default demo state?")) {
+  // Service Save Handler
+  const handleSaveServiceItem = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingService) return;
+
+    setServicesList(prev => {
+      const exists = prev.some(s => s.id === editingService.id);
+      if (exists) {
+        return prev.map(s => s.id === editingService.id ? editingService : s);
+      }
+      return [editingService, ...prev];
+    });
+    setEditingService(null);
+  };
+
+  // Store Product Save Handler
+  const handleSaveStoreProduct = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingStoreProduct) return;
+
+    setStoreList(prev => {
+      const exists = prev.some(p => p.id === editingStoreProduct.id);
+      if (exists) {
+        return prev.map(p => p.id === editingStoreProduct.id ? editingStoreProduct : p);
+      }
+      return [editingStoreProduct, ...prev];
+    });
+    setEditingStoreProduct(null);
+  };
+
+  // Portfolio Save Handler
+  const handleSavePortfolioProject = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPortfolioProject) return;
+
+    setPortfolioList(prev => {
+      const exists = prev.some(p => p.id === editingPortfolioProject.id);
+      if (exists) {
+        return prev.map(p => p.id === editingPortfolioProject.id ? editingPortfolioProject : p);
+      }
+      return [editingPortfolioProject, ...prev];
+    });
+    setEditingPortfolioProject(null);
+  };
+
+  const handleSaveSiteConfig = () => {
+    localStorage.setItem('arrjs_site_config', JSON.stringify(siteConfig));
+    alert("Website Customization Settings saved successfully!");
+  };
+
+  const handleResetAllDemoData = () => {
+    if (window.confirm("Reset all CRM leads, services, products, portfolio, and customization settings back to original defaults?")) {
       setLeads(INITIAL_DEMO_LEADS);
-      localStorage.setItem('arrjs_leads', JSON.stringify(INITIAL_DEMO_LEADS));
+      setServicesList(SERVICES_DATA);
+      setStoreList(STORE_PRODUCTS);
+      setPortfolioList(DEMO_PROJECTS);
+      setSiteConfig(DEFAULT_SITE_CONFIG);
+      localStorage.removeItem('arrjs_leads');
+      localStorage.removeItem('arrjs_admin_services');
+      localStorage.removeItem('arrjs_admin_store');
+      localStorage.removeItem('arrjs_admin_portfolio');
+      localStorage.removeItem('arrjs_site_config');
+      alert("All data and customization settings reset to original defaults!");
     }
   };
 
+  const handleExportDataJSON = () => {
+    const data = {
+      leads,
+      servicesList,
+      storeList,
+      portfolioList,
+      siteConfig,
+      exportedAt: new Date().toISOString()
+    };
+    const jsonStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", jsonStr);
+    downloadAnchor.setAttribute("download", `arrjs-backup-${Date.now()}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  };
+
   // Filtered Leads
-  const filteredLeads = leads.filter(lead => {
-    const matchesStatus = statusFilter === 'all' || lead.status === statusFilter;
+  const filteredLeads = leads.filter(l => {
+    const matchesStatus = statusFilter === 'all' || l.status === statusFilter;
     const matchesSearch = 
-      lead.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      lead.phone.includes(searchQuery) ||
-      lead.specificService.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      lead.location.toLowerCase().includes(searchQuery.toLowerCase());
+      l.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      l.phone.includes(searchQuery) ||
+      l.specificService.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      l.location.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesStatus && matchesSearch;
   });
 
@@ -214,7 +370,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
   const completedCount = leads.filter(l => l.status === 'completed').length;
   const vadodaraCount = leads.filter(l => l.isVadodaraResident).length;
 
-  // Render Login Lock Screen if not authenticated
+  // Render Passcode Lock Screen
   if (!isAuthenticated) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center px-4 py-16 bg-slate-900 text-white">
@@ -226,13 +382,13 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
 
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full border border-blue-500/30">
-              Internal Portal
+              Secret Control Portal
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white mt-3">
               ARRJS Admin Portal
             </h2>
             <p className="text-xs text-slate-300 mt-1">
-              Enter passcode to manage inquiries, leads, and store settings.
+              Enter passcode to manage inquiries, services, store items, and website customization.
             </p>
           </div>
 
@@ -244,10 +400,10 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
               <input
                 type="password"
                 required
-                placeholder="Enter admin passcode (e.g. admin123)"
+                placeholder="Enter passcode (e.g. admin123)"
                 value={passcode}
                 onChange={(e) => setPasscode(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-hidden"
+                className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:ring-2 focus:ring-blue-500 outline-hidden"
               />
               {passcodeError && (
                 <p className="text-xs text-red-400 mt-1.5 flex items-center gap-1">
@@ -261,7 +417,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
               className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <Unlock className="w-4 h-4" />
-              <span>Unlock Admin Portal</span>
+              <span>Unlock Admin Dashboard</span>
             </button>
           </form>
 
@@ -276,7 +432,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
           </div>
 
           <div className="text-[11px] text-slate-400">
-            ARRJS Technologies • Lead Management & Operations System
+            ARRJS Technologies • Comprehensive Business & Customization Portal
           </div>
 
         </div>
@@ -284,7 +440,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
     );
   }
 
-  // Render Admin Dashboard once authenticated
+  // Render Full Admin Portal Dashboard
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 py-8 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
@@ -298,15 +454,15 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                  ARRJS Admin Dashboard
+                  ARRJS Control Center
                 </h1>
                 <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  Active CRM
+                  Full Customization Active
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-slate-400 mt-1">
-                Manage incoming customer leads, Vadodara doorstep repair requests & website inquiries.
+                Full site management: Leads CRM, Website Content Customizer, Services, Tech Store & Portfolio.
               </p>
             </div>
           </div>
@@ -332,42 +488,51 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
         </div>
 
         {/* Analytics & KPI Overview Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
           
-          <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl space-y-2 shadow-sm">
+          <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl space-y-1.5 shadow-sm">
             <div className="flex items-center justify-between text-slate-400 text-xs font-semibold">
-              <span>Total Inquiries</span>
-              <Mail className="w-4 h-4 text-blue-400" />
+              <span>Total Leads</span>
+              <MessageSquare className="w-4 h-4 text-blue-400" />
             </div>
-            <p className="text-3xl font-extrabold text-white">{totalLeads}</p>
-            <p className="text-[11px] text-slate-400 font-medium">All incoming leads</p>
+            <p className="text-2xl sm:text-3xl font-extrabold text-white">{totalLeads}</p>
+            <p className="text-[11px] text-slate-400 font-medium">Inquiries received</p>
           </div>
 
-          <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl space-y-2 shadow-sm">
+          <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl space-y-1.5 shadow-sm">
             <div className="flex items-center justify-between text-slate-400 text-xs font-semibold">
               <span>New Unread</span>
               <Clock className="w-4 h-4 text-amber-400" />
             </div>
-            <p className="text-3xl font-extrabold text-amber-400">{newLeadsCount}</p>
-            <p className="text-[11px] text-amber-300/80 font-medium">Requires initial response</p>
+            <p className="text-2xl sm:text-3xl font-extrabold text-amber-400">{newLeadsCount}</p>
+            <p className="text-[11px] text-amber-300/80 font-medium">Action required</p>
           </div>
 
-          <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl space-y-2 shadow-sm">
+          <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl space-y-1.5 shadow-sm">
             <div className="flex items-center justify-between text-slate-400 text-xs font-semibold">
               <span>Vadodara Doorstep</span>
               <MapPin className="w-4 h-4 text-emerald-400" />
             </div>
-            <p className="text-3xl font-extrabold text-emerald-400">{vadodaraCount}</p>
-            <p className="text-[11px] text-emerald-300/80 font-medium">Local PC/Network Service</p>
+            <p className="text-2xl sm:text-3xl font-extrabold text-emerald-400">{vadodaraCount}</p>
+            <p className="text-[11px] text-emerald-300/80 font-medium">On-site repair/assembly</p>
           </div>
 
-          <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl space-y-2 shadow-sm">
+          <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl space-y-1.5 shadow-sm">
             <div className="flex items-center justify-between text-slate-400 text-xs font-semibold">
-              <span>Completed Projects</span>
-              <CheckCircle2 className="w-4 h-4 text-blue-400" />
+              <span>Active Services</span>
+              <Wrench className="w-4 h-4 text-purple-400" />
             </div>
-            <p className="text-3xl font-extrabold text-white">{completedCount}</p>
-            <p className="text-[11px] text-slate-400 font-medium">Successfully delivered</p>
+            <p className="text-2xl sm:text-3xl font-extrabold text-purple-400">{servicesList.length}</p>
+            <p className="text-[11px] text-slate-400 font-medium">Web, PC & Network</p>
+          </div>
+
+          <div className="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl space-y-1.5 shadow-sm col-span-2 md:col-span-1">
+            <div className="flex items-center justify-between text-slate-400 text-xs font-semibold">
+              <span>Store Products</span>
+              <ShoppingBag className="w-4 h-4 text-pink-400" />
+            </div>
+            <p className="text-2xl sm:text-3xl font-extrabold text-white">{storeList.length}</p>
+            <p className="text-[11px] text-slate-400 font-medium">Curated recommendations</p>
           </div>
 
         </div>
@@ -376,7 +541,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
         <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto">
           <button
             onClick={() => setActiveTab('leads')}
-            className={`px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
               activeTab === 'leads'
                 ? 'bg-blue-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -387,27 +552,63 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
           </button>
 
           <button
-            onClick={() => setActiveTab('store')}
-            className={`px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer ${
-              activeTab === 'store'
+            onClick={() => setActiveTab('customizer')}
+            className={`px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
+              activeTab === 'customizer'
                 ? 'bg-blue-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
             }`}
           >
-            <ShoppingBag className="w-4 h-4" />
-            <span>Tech Store Manager</span>
+            <Sliders className="w-4 h-4 text-amber-400" />
+            <span>Site Customizer (Full Control)</span>
           </button>
 
           <button
             onClick={() => setActiveTab('services')}
-            className={`px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
               activeTab === 'services'
                 ? 'bg-blue-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
             }`}
           >
             <Wrench className="w-4 h-4" />
-            <span>Vadodara Coverage & Pricing</span>
+            <span>Services Catalog ({servicesList.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('store')}
+            className={`px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
+              activeTab === 'store'
+                ? 'bg-blue-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+            }`}
+          >
+            <ShoppingBag className="w-4 h-4" />
+            <span>Tech Store ({storeList.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('portfolio')}
+            className={`px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
+              activeTab === 'portfolio'
+                ? 'bg-blue-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+            }`}
+          >
+            <Briefcase className="w-4 h-4" />
+            <span>Demo Portfolio ({portfolioList.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('settings')}
+            className={`px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
+              activeTab === 'settings'
+                ? 'bg-blue-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+            }`}
+          >
+            <Settings className="w-4 h-4" />
+            <span>Operations & Backup</span>
           </button>
         </div>
 
@@ -469,7 +670,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
                   };
 
                   const whatsappText = encodeURIComponent(
-                    `Hello ${lead.name},\nThank you for reaching out to ARRJS Technologies regarding "${lead.specificService}". We would be happy to discuss your requirements!`
+                    `Hello ${lead.name},\nThank you for reaching out to ${siteConfig.companyName} regarding "${lead.specificService}". We would be happy to discuss your requirements!`
                   );
 
                   return (
@@ -477,7 +678,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
                       key={lead.id} 
                       className="bg-slate-900/90 hover:bg-slate-900 border border-slate-800 hover:border-slate-700/80 p-5 sm:p-6 rounded-2xl transition-all shadow-sm space-y-4"
                     >
-                      {/* Top Row: Customer Info & Status Badge */}
+                      {/* Top Row */}
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
                         <div>
                           <div className="flex items-center gap-3 flex-wrap">
@@ -501,7 +702,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
                           {(['new', 'contacted', 'quoted', 'completed'] as const).map((st) => (
                             <button
                               key={st}
-                              onClick={() => handleUpdateStatus(lead.id, st)}
+                              onClick={() => handleUpdateLeadStatus(lead.id, st)}
                               className={`px-2.5 py-1 rounded-lg text-[10px] font-bold capitalize transition-all cursor-pointer ${
                                 lead.status === st 
                                   ? 'bg-blue-600 text-white shadow-xs' 
@@ -551,7 +752,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
                         </div>
                       </div>
 
-                      {/* Bottom Quick Action Bar */}
+                      {/* Bottom Action Bar */}
                       <div className="pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
                           <a
@@ -587,106 +788,732 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
                 })}
               </div>
             )}
+          </div>
+        )}
 
-            {/* Reset Demo Data & Reset Bar */}
-            <div className="pt-6 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
-              <span>Showing {filteredLeads.length} of {leads.length} total leads</span>
+        {/* TAB 2: SITE CUSTOMIZER (FULL CONTENT CONTROL) */}
+        {activeTab === 'customizer' && (
+          <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-8">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+              <div>
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Sliders className="w-5 h-5 text-amber-400" />
+                  Website Content & Branding Customizer
+                </h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  Customize company name, tagline, contact info, hero headlines, and social media URLs across the site.
+                </p>
+              </div>
               <button
-                onClick={handleResetDemoData}
-                className="hover:text-amber-400 flex items-center gap-1 transition-colors cursor-pointer"
+                onClick={handleSaveSiteConfig}
+                className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer"
               >
-                <RefreshCw className="w-3.5 h-3.5" />
-                <span>Reset Demo Leads</span>
+                <Save className="w-4 h-4" />
+                <span>Save All Customizations</span>
+              </button>
+            </div>
+
+            {/* Section 1: Company Profile & Contacts */}
+            <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h4 className="text-sm font-bold text-blue-400 uppercase tracking-wider flex items-center gap-2">
+                  <Globe className="w-4 h-4 text-blue-400" /> 1. Company Profile & Official Contacts
+                </h4>
+                <span className="text-[11px] bg-blue-500/10 text-blue-300 px-2.5 py-0.5 rounded-full border border-blue-500/20 font-semibold">
+                  Header & Footer Synced
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                <div>
+                  <label className="block text-slate-200 font-bold mb-1">Company Name</label>
+                  <input
+                    type="text"
+                    value={siteConfig.companyName}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, companyName: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white font-semibold outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">Primary business name displayed everywhere.</p>
+                </div>
+
+                <div>
+                  <label className="block text-slate-200 font-bold mb-1">Business Tagline</label>
+                  <input
+                    type="text"
+                    value={siteConfig.tagline}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, tagline: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">Short slogan under logo & footer.</p>
+                </div>
+
+                <div>
+                  <label className="block text-slate-200 font-bold mb-1">Official Email Address</label>
+                  <input
+                    type="email"
+                    value={siteConfig.officialEmail}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, officialEmail: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">Direct contact email link.</p>
+                </div>
+
+                <div>
+                  <label className="block text-slate-200 font-bold mb-1">Official Phone Number</label>
+                  <input
+                    type="text"
+                    value={siteConfig.officialPhone}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, officialPhone: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">Clickable call link across site.</p>
+                </div>
+
+                <div>
+                  <label className="block text-slate-200 font-bold mb-1 text-emerald-400">WhatsApp Direct Number (no spaces/dashes)</label>
+                  <input
+                    type="text"
+                    value={siteConfig.officialWhatsApp || ''}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, officialWhatsApp: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-emerald-300 font-bold outline-hidden focus:ring-2 focus:ring-emerald-500 transition-all"
+                  />
+                  <p className="text-[10px] text-emerald-400/80 mt-1">Example: 919825012345 (used for 1-click customer chat).</p>
+                </div>
+
+                <div>
+                  <label className="block text-slate-200 font-bold mb-1">Operating Business Hours</label>
+                  <input
+                    type="text"
+                    value={siteConfig.operatingHours}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, operatingHours: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">Working schedule in top notification bar.</p>
+                </div>
+
+                <div>
+                  <label className="block text-slate-200 font-bold mb-1">Location City</label>
+                  <input
+                    type="text"
+                    value={siteConfig.locationCity}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, locationCity: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">Primary service area badge.</p>
+                </div>
+
+                <div>
+                  <label className="block text-slate-200 font-bold mb-1">Full Office Address</label>
+                  <input
+                    type="text"
+                    value={siteConfig.officeAddress || ''}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, officeAddress: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">Displayed in contact view & Google Snippets.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 2: Header Notification Banner & Hero Section */}
+            <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h4 className="text-sm font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-emerald-400" /> 2. Top Header Notification Bar & Hero Section
+                </h4>
+                <span className="text-[11px] bg-emerald-500/10 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/20 font-semibold">
+                  Hero Live Preview
+                </span>
+              </div>
+
+              <div className="space-y-4 text-xs">
+                <div>
+                  <label className="block text-slate-200 font-bold mb-1">Top Notification Banner Text</label>
+                  <input
+                    type="text"
+                    value={siteConfig.topBannerText}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, topBannerText: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-slate-200 font-bold mb-1">Hero Main Headline (Start)</label>
+                    <input
+                      type="text"
+                      value={siteConfig.heroHeadline}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, heroHeadline: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all font-semibold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-200 font-bold mb-1">Hero Highlight Gradient Text</label>
+                    <input
+                      type="text"
+                      value={siteConfig.heroHighlightText}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, heroHighlightText: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-blue-300 font-bold outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-200 font-bold mb-1">Hero Top Location Badge Text</label>
+                    <input
+                      type="text"
+                      value={siteConfig.heroBadgeText || ''}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, heroBadgeText: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-200 font-bold mb-1">Primary CTA Button Label</label>
+                    <input
+                      type="text"
+                      value={siteConfig.heroPrimaryCtaText || ''}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, heroPrimaryCtaText: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white font-bold outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-slate-200 font-bold mb-1">Hero Subtitle Paragraph</label>
+                  <textarea
+                    rows={2}
+                    value={siteConfig.heroSubtitle}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, heroSubtitle: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 leading-relaxed transition-all"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 3: Trust Stats & Achievement Numbers */}
+            <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h4 className="text-sm font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4 text-amber-400" /> 3. Home & About Trust Stats Counters
+                </h4>
+                <span className="text-[11px] bg-amber-500/10 text-amber-300 px-2.5 py-0.5 rounded-full border border-amber-500/20 font-semibold">
+                  4 Achievements Cards
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1.5">
+                  <label className="block text-slate-300 font-bold">Stat 1</label>
+                  <input
+                    type="text"
+                    value={siteConfig.stat1Value || '120+'}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, stat1Value: e.target.value })}
+                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 text-white text-xs font-bold rounded-lg"
+                  />
+                  <input
+                    type="text"
+                    value={siteConfig.stat1Label || 'Projects Delivered'}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, stat1Label: e.target.value })}
+                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 text-slate-300 text-[11px] rounded-lg"
+                  />
+                </div>
+
+                <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1.5">
+                  <label className="block text-slate-300 font-bold">Stat 2</label>
+                  <input
+                    type="text"
+                    value={siteConfig.stat2Value || '98%'}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, stat2Value: e.target.value })}
+                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 text-white text-xs font-bold rounded-lg"
+                  />
+                  <input
+                    type="text"
+                    value={siteConfig.stat2Label || 'Satisfaction Rate'}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, stat2Label: e.target.value })}
+                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 text-slate-300 text-[11px] rounded-lg"
+                  />
+                </div>
+
+                <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1.5">
+                  <label className="block text-slate-300 font-bold">Stat 3</label>
+                  <input
+                    type="text"
+                    value={siteConfig.stat3Value || '24-48 Hrs'}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, stat3Value: e.target.value })}
+                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 text-white text-xs font-bold rounded-lg"
+                  />
+                  <input
+                    type="text"
+                    value={siteConfig.stat3Label || 'Turnaround Time'}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, stat3Label: e.target.value })}
+                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 text-slate-300 text-[11px] rounded-lg"
+                  />
+                </div>
+
+                <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-1.5">
+                  <label className="block text-slate-300 font-bold">Stat 4</label>
+                  <input
+                    type="text"
+                    value={siteConfig.stat4Value || '4.9 ⭐'}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, stat4Value: e.target.value })}
+                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 text-white text-xs font-bold rounded-lg"
+                  />
+                  <input
+                    type="text"
+                    value={siteConfig.stat4Label || 'Vadodara Rating'}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, stat4Label: e.target.value })}
+                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 text-slate-300 text-[11px] rounded-lg"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Section 4: Floating Action Button & Consultation Modal */}
+            <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h4 className="text-sm font-bold text-pink-400 uppercase tracking-wider flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4 text-pink-400" /> 4. Floating Action CTA & Consultation Modal Text
+                </h4>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                <div>
+                  <label className="block text-slate-200 font-bold mb-1">Floating CTA Button Label</label>
+                  <input
+                    type="text"
+                    value={siteConfig.floatingCtaText || ''}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, floatingCtaText: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white font-bold outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-200 font-bold mb-1">Consultation Modal Title</label>
+                  <input
+                    type="text"
+                    value={siteConfig.modalTitle || ''}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, modalTitle: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-200 font-bold mb-1">Consultation Modal Subtitle</label>
+                  <input
+                    type="text"
+                    value={siteConfig.modalSubtitle || ''}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, modalSubtitle: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Section 5: Footer & Social Media Links */}
+            <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h4 className="text-sm font-bold text-purple-400 uppercase tracking-wider flex items-center gap-2">
+                  <Share2 className="w-4 h-4 text-purple-400" /> 5. Footer Text & Official Social Media Links
+                </h4>
+              </div>
+
+              <div className="space-y-4 text-xs">
+                <div>
+                  <label className="block text-slate-200 font-bold mb-1">Footer About Description Paragraph</label>
+                  <textarea
+                    rows={2}
+                    value={siteConfig.footerDescription || ''}
+                    onChange={(e) => setSiteConfig({ ...siteConfig, footerDescription: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 leading-relaxed transition-all"
+                  ></textarea>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-slate-200 font-bold mb-1">Facebook URL</label>
+                    <input
+                      type="url"
+                      value={siteConfig.facebookUrl}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, facebookUrl: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-200 font-bold mb-1">Instagram URL</label>
+                    <input
+                      type="url"
+                      value={siteConfig.instagramUrl}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, instagramUrl: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-200 font-bold mb-1">LinkedIn URL</label>
+                    <input
+                      type="url"
+                      value={siteConfig.linkedinUrl}
+                      onChange={(e) => setSiteConfig({ ...siteConfig, linkedinUrl: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-white outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 6: Live Google Search Snippet Preview Box */}
+            <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h4 className="text-sm font-bold text-blue-400 uppercase tracking-wider flex items-center gap-2">
+                  <Search className="w-4 h-4 text-blue-400" /> 6. Google Search Live Preview Box
+                </h4>
+                <span className="text-[11px] bg-blue-500/10 text-blue-300 px-2.5 py-0.5 rounded-full border border-blue-500/20 font-semibold">
+                  Google Rich Snippet Simulation
+                </span>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl space-y-2 border border-slate-200 text-left font-sans text-xs">
+                <div className="flex items-center gap-2 text-[11px] text-slate-600">
+                  <span className="w-4 h-4 rounded-full bg-blue-600 text-white text-[9px] font-bold flex items-center justify-center">A</span>
+                  <span className="text-slate-800 font-medium">https://arrjs-technologies.vercel.app</span>
+                  <span className="text-slate-400">› vadodara</span>
+                </div>
+                <h3 className="text-base sm:text-lg font-normal text-blue-800 hover:underline cursor-pointer leading-snug">
+                  {siteConfig.customSeoTitle || `${siteConfig.companyName} - IT Services, Computer Repair & Custom PC Build Vadodara`}
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">
+                  {siteConfig.customSeoDescription || `${siteConfig.topBannerText}. ${siteConfig.tagline}. Contact: ${siteConfig.officialPhone}.`}
+                </p>
+              </div>
+            </div>
+
+            {/* Save Button Bar */}
+            <div className="pt-4 border-t border-slate-800 flex justify-between items-center">
+              <div className="text-xs text-emerald-400 font-semibold flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>Real-Time Live Sync Active • Changes update automatically across the site</span>
+              </div>
+
+              <button
+                onClick={handleSaveSiteConfig}
+                className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-6 py-3 rounded-xl shadow-lg transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <Save className="w-4 h-4" />
+                <span>Save All Customization Settings</span>
               </button>
             </div>
 
           </div>
         )}
 
-        {/* TAB 2: TECH STORE MANAGER */}
-        {activeTab === 'store' && (
-          <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6">
-            <div className="flex items-center justify-between">
+        {/* TAB 3: SERVICES CATALOG MANAGER */}
+        {activeTab === 'services' && (
+          <div className="space-y-6">
+            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 sm:p-8 flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-bold text-white">Tech Store Product Recommendations</h3>
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Wrench className="w-5 h-5 text-blue-400" />
+                  Website Services Catalog ({servicesList.length})
+                </h3>
                 <p className="text-xs text-slate-400 mt-1">
-                  Manage hand-picked hardware curated for Amazon & Flipkart affiliate links.
+                  Manage all Web Development, Vadodara Computer Repair/Assembly, & Networking service offerings.
                 </p>
               </div>
               <button
-                onClick={() => alert("Product recommendation added to store state!")}
+                onClick={() => {
+                  setEditingService({
+                    id: `svc-${Date.now()}`,
+                    category: 'web',
+                    categoryTitle: '🌐 Web Solutions',
+                    title: '',
+                    description: '',
+                    features: ['Custom feature 1', 'Fast delivery'],
+                    isLocalOnly: false,
+                    locationNote: 'Available globally & remotely',
+                    iconName: 'Globe',
+                    estimatedTimeline: '3 to 7 business days',
+                    badge: '🔥 Trending'
+                  });
+                }}
                 className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-md flex items-center gap-2 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
-                <span>Add Product</span>
+                <span>Add New Service</span>
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
-                <span className="bg-purple-500/20 text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-purple-500/30">
-                  Affiliate Link Integrity
-                </span>
-                <h4 className="font-bold text-white text-sm">Amazon & Flipkart Partner Network</h4>
-                <p className="text-slate-400">
-                  All store links utilize transparent affiliate redirect tags. ARRJS Technologies does not hold physical stock.
-                </p>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {servicesList.map((svc) => (
+                <div key={svc.id} className="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl space-y-3 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between gap-1 mb-2 flex-wrap">
+                      <span className="text-[10px] font-bold uppercase bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full border border-blue-500/30">
+                        {svc.categoryTitle}
+                      </span>
+                      {svc.badge ? (
+                        <span className="text-[10px] font-extrabold bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/30 flex items-center gap-1">
+                          {svc.badge}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-semibold text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">
+                          No Tag
+                        </span>
+                      )}
+                    </div>
+                    <h4 className="text-base font-bold text-white">{svc.title}</h4>
+                    <p className="text-xs text-slate-400 mt-1 line-clamp-2">{svc.description}</p>
+                    
+                    <div className="mt-3 pt-3 border-t border-slate-800 text-[11px] text-slate-400 space-y-1">
+                      <p className="font-semibold text-slate-300">⏱ Timeline: {svc.estimatedTimeline || 'Standard'}</p>
+                      <p className="text-slate-400">{svc.features.length} Key Features Configured</p>
+                    </div>
+                  </div>
 
-              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
-                <span className="bg-blue-500/20 text-blue-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-500/30">
-                  Curated Catalog Status
-                </span>
-                <h4 className="font-bold text-white text-sm">Hardware & Accessories Verified</h4>
-                <p className="text-slate-400">
-                  12 active hardware recommendations across Laptops, PC Components, Networking, & Office Accessories.
-                </p>
-              </div>
+                  <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs gap-2">
+                    <button
+                      onClick={() => setEditingService(svc)}
+                      className="bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 text-blue-300 font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" /> Edit Full Details
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm(`Delete service "${svc.title}"?`)) {
+                          setServicesList(prev => prev.filter(s => s.id !== svc.id));
+                        }
+                      }}
+                      className="text-slate-500 hover:text-red-400 cursor-pointer ml-auto"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
 
-        {/* TAB 3: VADODARA SERVICE SETTINGS */}
-        {activeTab === 'services' && (
-          <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6">
-            <div className="border-b border-slate-800 pb-4">
-              <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-emerald-400" />
-                Vadodara Doorstep Service & Local Operations
-              </h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Configure operational areas, working hours, and pricing estimator guidelines.
-              </p>
+        {/* TAB 4: TECH STORE MANAGER */}
+        {activeTab === 'store' && (
+          <div className="space-y-6">
+            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 sm:p-8 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <ShoppingBag className="w-5 h-5 text-pink-400" />
+                  ARRJS Tech Store Items ({storeList.length})
+                </h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  Manage hand-picked products, specs, and Amazon/Flipkart affiliate buy links.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setEditingStoreProduct({
+                    id: `prod-${Date.now()}`,
+                    title: '',
+                    category: 'components',
+                    categoryName: 'PC Hardware',
+                    description: '',
+                    rating: 4.8,
+                    specs: ['High Performance', 'Original Manufacturer Warranty'],
+                    recommendedFor: 'Gaming & Workstation PCs',
+                    affiliateUrlAmazon: 'https://amazon.in',
+                    affiliateUrlFlipkart: 'https://flipkart.com',
+                    imageUrl: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=500&auto=format&fit=crop&q=80',
+                    badge: '🔥 Best Seller'
+                  });
+                }}
+                className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-md flex items-center gap-2 cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add New Product</span>
+              </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-slate-300">
-              
-              <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3">
-                <h4 className="font-bold text-white text-sm text-emerald-400">📍 Active Vadodara Service Areas</h4>
-                <ul className="space-y-1.5 text-slate-400">
-                  <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Alkapuri</li>
-                  <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Akota</li>
-                  <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Manjalpur</li>
-                  <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Karelibaug</li>
-                  <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Gotri & Vasna</li>
-                  <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Sayajigunj & Subhanpura</li>
-                </ul>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {storeList.map((prod) => (
+                <div key={prod.id} className="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl space-y-3 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] font-bold uppercase bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full border border-purple-500/30">
+                        {prod.categoryName}
+                      </span>
+                      {prod.badge && (
+                        <span className="text-[10px] font-bold bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/30">
+                          {prod.badge}
+                        </span>
+                      )}
+                    </div>
+                    <h4 className="text-base font-bold text-white">{prod.title}</h4>
+                    <p className="text-xs text-slate-400 mt-1 line-clamp-2">{prod.description}</p>
+                    
+                    <div className="mt-3 pt-3 border-t border-slate-800 text-[11px] text-slate-400 space-y-1">
+                      <p className="text-slate-300">⭐ Rating: {prod.rating} / 5</p>
+                      <p className="text-emerald-400 truncate flex items-center gap-1">
+                        <LinkIcon className="w-3 h-3" /> Amazon: {prod.affiliateUrlAmazon || 'Not set'}
+                      </p>
+                    </div>
+                  </div>
 
-              <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3">
-                <h4 className="font-bold text-white text-sm text-blue-400">🕒 Operating Hours</h4>
-                <div className="space-y-2">
-                  <p className="text-slate-300 font-semibold">Monday - Saturday:</p>
-                  <p className="text-white bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800 font-mono">9:00 AM - 7:00 PM IST</p>
-                  <p className="text-slate-400 text-[11px]">Sunday: Emergency / Pre-booked On-Site Only</p>
+                  <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs gap-2">
+                    <button
+                      onClick={() => setEditingStoreProduct(prod)}
+                      className="bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 text-blue-300 font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" /> Edit Links & Details
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm(`Delete product "${prod.title}"?`)) {
+                          setStoreList(prev => prev.filter(p => p.id !== prod.id));
+                        }
+                      }}
+                      className="text-slate-500 hover:text-red-400 cursor-pointer ml-auto"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 5: DEMO PORTFOLIO MANAGER */}
+        {activeTab === 'portfolio' && (
+          <div className="space-y-6">
+            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 sm:p-8 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Briefcase className="w-5 h-5 text-emerald-400" />
+                  Demo Portfolio Showcase Projects ({portfolioList.length})
+                </h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  Manage interactive website demo projects, live preview links, & tech stack.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setEditingPortfolioProject({
+                    id: `proj-${Date.now()}`,
+                    title: '',
+                    category: 'Website Development',
+                    industry: 'Local Business Showcase',
+                    description: '',
+                    isDemo: true,
+                    features: ['Responsive UI', 'SEO Optimized', 'WhatsApp Integration'],
+                    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=80',
+                    techStack: ['React', 'Tailwind CSS', 'TypeScript'],
+                    previewUrl: 'https://demo-example.com',
+                    demoDetails: {
+                      challenge: 'Creating a fast modern web interface for local lead capture.',
+                      solution: 'Built clean responsive web layout with direct consultation modal.',
+                      highlights: ['Fast page load speed', 'Mobile-first layout']
+                    }
+                  });
+                }}
+                className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-md flex items-center gap-2 cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add New Project</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {portfolioList.map((proj) => (
+                <div key={proj.id} className="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl space-y-3 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                        {proj.industry}
+                      </span>
+                      <span className="text-[10px] font-bold bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full border border-blue-500/30">
+                        Demo Showcase
+                      </span>
+                    </div>
+                    <h4 className="text-base font-bold text-white">{proj.title}</h4>
+                    <p className="text-xs text-slate-400 mt-1 line-clamp-2">{proj.description}</p>
+                    
+                    <div className="mt-3 pt-3 border-t border-slate-800 text-[11px] text-slate-400 space-y-1">
+                      <p className="text-slate-300">🛠 Tech Stack: {proj.techStack.join(', ')}</p>
+                      <p className="text-blue-400 truncate flex items-center gap-1">
+                        <ExternalLink className="w-3 h-3" /> Link: {proj.previewUrl || 'Not set'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs gap-2">
+                    <button
+                      onClick={() => setEditingPortfolioProject(proj)}
+                      className="bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 text-blue-300 font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" /> Edit Project & Links
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm(`Delete project "${proj.title}"?`)) {
+                          setPortfolioList(prev => prev.filter(p => p.id !== proj.id));
+                        }
+                      }}
+                      className="text-slate-500 hover:text-red-400 cursor-pointer ml-auto"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 6: OPERATIONS & BACKUP DATA */}
+        {activeTab === 'settings' && (
+          <div className="space-y-6">
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6">
+              
+              <div className="border-b border-slate-800 pb-4">
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Settings className="w-5 h-5 text-blue-400" />
+                  Operations & Data Backup Tools
+                </h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  Export complete website backup or reset data to default factory state.
+                </p>
               </div>
 
-              <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3">
-                <h4 className="font-bold text-white text-sm text-amber-400">🛡 Local Guarantee Policy</h4>
-                <p className="text-slate-400 leading-relaxed">
-                  Clear upfront estimates provided before starting computer repair or PC assembly. No hidden diagnostic fees for Vadodara home visits.
-                </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-slate-300">
+                <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3">
+                  <h4 className="font-bold text-white text-sm text-blue-400 flex items-center gap-2">
+                    <Download className="w-4 h-4" /> Export Complete Data Backup (JSON)
+                  </h4>
+                  <p className="text-slate-400 leading-relaxed">
+                    Download a full JSON backup file containing all CRM leads, services data, store items, portfolio projects, and site customization settings.
+                  </p>
+                  <button
+                    onClick={handleExportDataJSON}
+                    className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer mt-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Download JSON Backup</span>
+                  </button>
+                </div>
+
+                <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3">
+                  <h4 className="font-bold text-white text-sm text-amber-400 flex items-center gap-2">
+                    <RefreshCw className="w-4 h-4" /> Factory Reset All Data
+                  </h4>
+                  <p className="text-slate-400 leading-relaxed">
+                    Reset all CRM leads, custom services, products, portfolio, and branding settings back to clean original defaults.
+                  </p>
+                  <button
+                    onClick={handleResetAllDemoData}
+                    className="bg-slate-800 hover:bg-red-500/20 hover:text-red-300 text-slate-300 font-semibold px-4 py-2.5 rounded-xl border border-slate-700 transition-colors cursor-pointer mt-2"
+                  >
+                    Reset All Data to Defaults
+                  </button>
+                </div>
               </div>
 
             </div>
@@ -695,7 +1522,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
 
       </div>
 
-      {/* Modal: Add Manual Lead */}
+      {/* MODAL 1: ADD MANUAL LEAD */}
       {showAddLeadModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-slate-900 border border-slate-800 text-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
@@ -784,6 +1611,498 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentView }) => {
                   className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-md"
                 >
                   Save Lead
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2: FULL SERVICE ITEM EDITOR */}
+      {editingService && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-slate-900 border border-slate-800 text-white rounded-3xl max-w-xl w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <Wrench className="w-5 h-5 text-blue-400" /> Edit Service Details & Features
+              </h3>
+              <button 
+                onClick={() => setEditingService(null)} 
+                className="text-slate-400 hover:text-white p-1 rounded-lg"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveServiceItem} className="space-y-4 text-xs text-left">
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Service Title *</label>
+                <input 
+                  type="text" 
+                  required 
+                  value={editingService.title}
+                  onChange={(e) => setEditingService({ ...editingService, title: e.target.value })}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white outline-hidden focus:border-blue-500 font-bold"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Service Category</label>
+                  <select
+                    value={editingService.category}
+                    onChange={(e) => {
+                      const cat = e.target.value as any;
+                      const catTitleMap = {
+                        web: '🌐 Web Solutions',
+                        computer: '💻 Computer Solutions',
+                        networking: '🌐 Networking Solutions'
+                      };
+                      setEditingService({ 
+                        ...editingService, 
+                        category: cat,
+                        categoryTitle: catTitleMap[cat]
+                      });
+                    }}
+                    className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white outline-hidden focus:border-blue-500"
+                  >
+                    <option value="web">🌐 Web Solutions</option>
+                    <option value="computer">💻 Computer Solutions (Vadodara)</option>
+                    <option value="networking">🌐 Networking (Vadodara)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Trending Tags / Badges (Comma-separated)</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. 🔥 Trending, 📍 Vadodara Special, ⚡ Express Service" 
+                    value={(editingService.badges && editingService.badges.length > 0) ? editingService.badges.join(', ') : (editingService.badge || '')}
+                    onChange={(e) => {
+                      const tags = e.target.value.split(',').map(t => t.trim()).filter(Boolean);
+                      setEditingService({ ...editingService, badge: e.target.value, badges: tags });
+                    }}
+                    className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-amber-300 font-bold outline-hidden focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              {/* Multi-Tag Select Workflow Presets */}
+              <div className="space-y-2 bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
+                <div className="flex items-center justify-between">
+                  <p className="text-[11px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1">
+                    <Sparkles className="w-3.5 h-3.5" /> Multi-Tag Select Workflow (Click to Add / Remove):
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setEditingService({ ...editingService, badge: '', badges: [] })}
+                    className="text-[10px] font-bold text-slate-400 hover:text-red-400 transition-colors cursor-pointer"
+                  >
+                    Clear All Tags
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    '🔥 Trending',
+                    '⭐ Most Popular',
+                    '📍 Vadodara Special',
+                    '🏆 Best Seller',
+                    '⚡ Same-Day Express',
+                    '💎 Premium Quality',
+                    '🆕 New Launch',
+                    '🌐 Remote Available'
+                  ].map((presetTag) => {
+                    const currentList = (editingService.badges && editingService.badges.length > 0) 
+                      ? editingService.badges 
+                      : (editingService.badge ? editingService.badge.split(',').map(b => b.trim()).filter(Boolean) : []);
+                    const isSelected = currentList.includes(presetTag);
+
+                    return (
+                      <button
+                        type="button"
+                        key={presetTag}
+                        onClick={() => {
+                          let updated: string[];
+                          if (isSelected) {
+                            updated = currentList.filter(t => t !== presetTag);
+                          } else {
+                            updated = [...currentList, presetTag];
+                          }
+                          setEditingService({
+                            ...editingService,
+                            badge: updated.join(', '),
+                            badges: updated
+                          });
+                        }}
+                        className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                          isSelected
+                            ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md ring-2 ring-amber-400 scale-105'
+                            : 'bg-slate-900 text-amber-300 hover:bg-slate-800 border border-slate-800'
+                        }`}
+                      >
+                        <span>{isSelected ? '✓' : '+'}</span>
+                        <span>{presetTag}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Description Paragraph</label>
+                <textarea 
+                  rows={3} 
+                  required
+                  value={editingService.description}
+                  onChange={(e) => setEditingService({ ...editingService, description: e.target.value })}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white outline-hidden focus:border-blue-500 leading-relaxed"
+                ></textarea>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">
+                  Key Service Highlights / Features (One feature per line)
+                </label>
+                <textarea 
+                  rows={4} 
+                  value={editingService.features.join('\n')}
+                  onChange={(e) => setEditingService({ 
+                    ...editingService, 
+                    features: e.target.value.split('\n').filter(f => f.trim()) 
+                  })}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white outline-hidden focus:border-blue-500 leading-relaxed"
+                ></textarea>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Estimated Timeline</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. 3 to 7 business days" 
+                    value={editingService.estimatedTimeline || ''}
+                    onChange={(e) => setEditingService({ ...editingService, estimatedTimeline: e.target.value })}
+                    className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white outline-hidden focus:border-blue-500"
+                  />
+                </div>
+
+                <div className="flex items-center gap-2 pt-6">
+                  <input
+                    type="checkbox"
+                    id="isLocalOnly"
+                    checked={editingService.isLocalOnly || false}
+                    onChange={(e) => setEditingService({ ...editingService, isLocalOnly: e.target.checked })}
+                    className="w-4 h-4 rounded-md accent-emerald-500 cursor-pointer"
+                  />
+                  <label htmlFor="isLocalOnly" className="text-slate-300 font-semibold cursor-pointer">
+                    Vadodara Doorstep Only
+                  </label>
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingService(null)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-md"
+                >
+                  Save Service Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: FULL TECH STORE PRODUCT EDITOR */}
+      {editingStoreProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-slate-900 border border-slate-800 text-white rounded-3xl max-w-xl w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <ShoppingBag className="w-5 h-5 text-pink-400" /> Edit Product & Buy Affiliate Links
+              </h3>
+              <button 
+                onClick={() => setEditingStoreProduct(null)} 
+                className="text-slate-400 hover:text-white p-1 rounded-lg"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveStoreProduct} className="space-y-4 text-xs text-left">
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Product Title *</label>
+                <input 
+                  type="text" 
+                  required 
+                  value={editingStoreProduct.title}
+                  onChange={(e) => setEditingStoreProduct({ ...editingStoreProduct, title: e.target.value })}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white outline-hidden focus:border-blue-500 font-bold"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Category</label>
+                  <input 
+                    type="text" 
+                    value={editingStoreProduct.categoryName}
+                    onChange={(e) => setEditingStoreProduct({ ...editingStoreProduct, categoryName: e.target.value })}
+                    className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white outline-hidden focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Badge Tags (Comma-separated)</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. 🔥 Best Seller, 📍 Vadodara Special, 🎮 Gaming Build" 
+                    value={(editingStoreProduct.badges && editingStoreProduct.badges.length > 0) ? editingStoreProduct.badges.join(', ') : (editingStoreProduct.badge || '')}
+                    onChange={(e) => {
+                      const tags = e.target.value.split(',').map(t => t.trim()).filter(Boolean);
+                      setEditingStoreProduct({ ...editingStoreProduct, badge: e.target.value, badges: tags });
+                    }}
+                    className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-amber-300 font-bold outline-hidden focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              {/* Multi-Tag Select Workflow Presets for Tech Store */}
+              <div className="space-y-2 bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
+                <div className="flex items-center justify-between">
+                  <p className="text-[11px] font-bold text-pink-400 uppercase tracking-wider flex items-center gap-1">
+                    <Sparkles className="w-3.5 h-3.5" /> Multi-Tag Select Workflow (Click to Add / Remove):
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setEditingStoreProduct({ ...editingStoreProduct, badge: '', badges: [] })}
+                    className="text-[10px] font-bold text-slate-400 hover:text-red-400 transition-colors cursor-pointer"
+                  >
+                    Clear All Tags
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    '🔥 Best Seller',
+                    '⭐ Top Rated',
+                    '📍 Vadodara Special',
+                    '🎮 Gaming Build',
+                    '💼 Workstation Grade',
+                    '⚡ High Speed SSD',
+                    '🏆 Recommended Choice',
+                    '🆕 New Arrival'
+                  ].map((presetTag) => {
+                    const currentList = (editingStoreProduct.badges && editingStoreProduct.badges.length > 0) 
+                      ? editingStoreProduct.badges 
+                      : (editingStoreProduct.badge ? editingStoreProduct.badge.split(',').map(b => b.trim()).filter(Boolean) : []);
+                    const isSelected = currentList.includes(presetTag);
+
+                    return (
+                      <button
+                        type="button"
+                        key={presetTag}
+                        onClick={() => {
+                          let updated: string[];
+                          if (isSelected) {
+                            updated = currentList.filter(t => t !== presetTag);
+                          } else {
+                            updated = [...currentList, presetTag];
+                          }
+                          setEditingStoreProduct({
+                            ...editingStoreProduct,
+                            badge: updated.join(', '),
+                            badges: updated
+                          });
+                        }}
+                        className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                          isSelected
+                            ? 'bg-gradient-to-r from-pink-500 to-rose-600 text-white shadow-md ring-2 ring-pink-400 scale-105'
+                            : 'bg-slate-900 text-pink-300 hover:bg-slate-800 border border-slate-800'
+                        }`}
+                      >
+                        <span>{isSelected ? '✓' : '+'}</span>
+                        <span>{presetTag}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="space-y-3 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                <h4 className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                  <LinkIcon className="w-3.5 h-3.5" /> Affiliate Buy Links
+                </h4>
+
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Amazon Link URL *</label>
+                  <input 
+                    type="url" 
+                    required
+                    placeholder="https://amazon.in/dp/..." 
+                    value={editingStoreProduct.affiliateUrlAmazon || ''}
+                    onChange={(e) => setEditingStoreProduct({ ...editingStoreProduct, affiliateUrlAmazon: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-emerald-300 outline-hidden focus:border-emerald-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Flipkart Link URL</label>
+                  <input 
+                    type="url" 
+                    placeholder="https://flipkart.com/..." 
+                    value={editingStoreProduct.affiliateUrlFlipkart || ''}
+                    onChange={(e) => setEditingStoreProduct({ ...editingStoreProduct, affiliateUrlFlipkart: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-blue-300 outline-hidden focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Product Description</label>
+                <textarea 
+                  rows={2} 
+                  value={editingStoreProduct.description}
+                  onChange={(e) => setEditingStoreProduct({ ...editingStoreProduct, description: e.target.value })}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white outline-hidden focus:border-blue-500"
+                ></textarea>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Image URL</label>
+                <input 
+                  type="text" 
+                  value={editingStoreProduct.imageUrl}
+                  onChange={(e) => setEditingStoreProduct({ ...editingStoreProduct, imageUrl: e.target.value })}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white outline-hidden focus:border-blue-500"
+                />
+              </div>
+
+              <div className="pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingStoreProduct(null)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-md"
+                >
+                  Save Product & Links
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4: FULL DEMO PORTFOLIO EDITOR */}
+      {editingPortfolioProject && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-slate-900 border border-slate-800 text-white rounded-3xl max-w-xl w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <Briefcase className="w-5 h-5 text-emerald-400" /> Edit Project Details & Demo Preview Link
+              </h3>
+              <button 
+                onClick={() => setEditingPortfolioProject(null)} 
+                className="text-slate-400 hover:text-white p-1 rounded-lg"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSavePortfolioProject} className="space-y-4 text-xs text-left">
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Project Title *</label>
+                <input 
+                  type="text" 
+                  required 
+                  value={editingPortfolioProject.title}
+                  onChange={(e) => setEditingPortfolioProject({ ...editingPortfolioProject, title: e.target.value })}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white outline-hidden focus:border-blue-500 font-bold"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Industry Tag</label>
+                  <input 
+                    type="text" 
+                    value={editingPortfolioProject.industry}
+                    onChange={(e) => setEditingPortfolioProject({ ...editingPortfolioProject, industry: e.target.value })}
+                    className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white outline-hidden focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Live Demo Preview Link</label>
+                  <input 
+                    type="url" 
+                    placeholder="https://demo-link.com" 
+                    value={editingPortfolioProject.previewUrl || ''}
+                    onChange={(e) => setEditingPortfolioProject({ ...editingPortfolioProject, previewUrl: e.target.value })}
+                    className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-blue-300 outline-hidden focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Project Description</label>
+                <textarea 
+                  rows={2} 
+                  value={editingPortfolioProject.description}
+                  onChange={(e) => setEditingPortfolioProject({ ...editingPortfolioProject, description: e.target.value })}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white outline-hidden focus:border-blue-500"
+                ></textarea>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Tech Stack (comma separated)</label>
+                <input 
+                  type="text" 
+                  value={editingPortfolioProject.techStack.join(', ')}
+                  onChange={(e) => setEditingPortfolioProject({ 
+                    ...editingPortfolioProject, 
+                    techStack: e.target.value.split(',').map(t => t.trim()).filter(Boolean)
+                  })}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white outline-hidden focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Cover Image URL</label>
+                <input 
+                  type="text" 
+                  value={editingPortfolioProject.image}
+                  onChange={(e) => setEditingPortfolioProject({ ...editingPortfolioProject, image: e.target.value })}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white outline-hidden focus:border-blue-500"
+                />
+              </div>
+
+              <div className="pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingPortfolioProject(null)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-md"
+                >
+                  Save Project Changes
                 </button>
               </div>
             </form>

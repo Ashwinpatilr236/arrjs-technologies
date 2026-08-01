@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSiteConfig } from '../hooks/useSiteConfig';
 import { PageView } from '../types';
 import { 
   PhoneCall, 
@@ -21,6 +22,8 @@ interface HeroProps {
 }
 
 export const Hero: React.FC<HeroProps> = ({ setCurrentView, onOpenConsultation }) => {
+  const siteConfig = useSiteConfig();
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white pt-12 sm:pt-16 pb-16 sm:pb-24">
       
@@ -36,7 +39,7 @@ export const Hero: React.FC<HeroProps> = ({ setCurrentView, onOpenConsultation }
         <div className="flex flex-wrap items-center justify-center gap-2 mb-6 text-center animate-fade-in-up">
           <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-400/20 text-blue-300 px-3.5 py-1.5 rounded-full text-xs font-semibold backdrop-blur-xs">
             <MapPin className="w-3.5 h-3.5 text-blue-400" />
-            <span>Vadodara On-Site Services & Worldwide Web Solutions</span>
+            <span>{siteConfig.heroBadgeText}</span>
           </div>
           <div className="inline-flex items-center gap-1.5 bg-slate-800/80 border border-slate-700 text-slate-300 px-3 py-1.5 rounded-full text-xs font-medium">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
@@ -47,14 +50,14 @@ export const Hero: React.FC<HeroProps> = ({ setCurrentView, onOpenConsultation }
         {/* Hero Heading & Subtitle */}
         <div className="max-w-4xl mx-auto text-center space-y-6 animate-fade-in-up">
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.15]">
-            Professional Technology Solutions for{' '}
+            {siteConfig.heroHeadline}{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-300 to-white">
-              Businesses and Homes
+              {siteConfig.heroHighlightText}
             </span>
           </h1>
 
           <p className="text-base sm:text-xl text-slate-300 font-normal max-w-3xl mx-auto leading-relaxed">
-            Helping individuals and businesses with professional websites, computer solutions and networking services.
+            {siteConfig.heroSubtitle}
           </p>
 
           {/* Action Buttons */}

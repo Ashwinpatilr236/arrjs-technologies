@@ -18,7 +18,8 @@ export const SERVICES_DATA: ServiceItem[] = [
     isLocalOnly: false,
     locationNote: 'Available globally & remotely for all businesses',
     iconName: 'Globe',
-    estimatedTimeline: '3 to 7 business days'
+    estimatedTimeline: '3 to 7 business days',
+    badge: '🔥 Trending'
   },
   {
     id: 'web-redesign',

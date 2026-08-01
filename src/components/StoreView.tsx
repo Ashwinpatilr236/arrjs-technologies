@@ -119,11 +119,22 @@ export const StoreView: React.FC = () => {
                     alt={product.title} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                  {product.badge && (
-                    <span className="absolute top-2 left-2 bg-slate-900 text-white text-[10px] font-bold px-2.5 py-1 rounded-md shadow-xs">
-                      {product.badge}
-                    </span>
-                  )}
+                  {(() => {
+                    const tagList = (product.badges && product.badges.length > 0)
+                      ? product.badges
+                      : (product.badge ? product.badge.split(',').map(b => b.trim()).filter(Boolean) : []);
+                    
+                    if (tagList.length === 0) return null;
+                    return (
+                      <div className="absolute top-2 left-2 flex flex-wrap gap-1 max-w-[90%] z-10">
+                        {tagList.map((tag, idx) => (
+                          <span key={idx} className="bg-slate-900/90 backdrop-blur-xs text-amber-300 border border-slate-700 text-[10px] font-bold px-2 py-0.5 rounded-md shadow-xs">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Content */}
