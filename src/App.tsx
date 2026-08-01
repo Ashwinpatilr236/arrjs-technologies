@@ -15,28 +15,6 @@ export default function App() {
   const [currentView, setCurrentView] = useState<PageView>('home');
   const [consultationModalOpen, setConsultationModalOpen] = useState(false);
   const [preSelectedService, setPreSelectedService] = useState('');
-  
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    const saved = localStorage.getItem('theme');
-    if (saved !== null) {
-      return saved === 'dark';
-    }
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  });
-
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [isDarkMode]);
-
-  const handleToggleDarkMode = () => {
-    setIsDarkMode(prev => !prev);
-  };
 
   // Scroll to top on view change
   useEffect(() => {
@@ -49,15 +27,13 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100/60 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans antialiased flex flex-col justify-between selection:bg-blue-600 selection:text-white transition-colors duration-200">
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased flex flex-col justify-between selection:bg-blue-600 selection:text-white">
       
       {/* Header */}
       <Header
         currentView={currentView}
         setCurrentView={setCurrentView}
         onOpenConsultation={() => handleOpenConsultation('')}
-        isDarkMode={isDarkMode}
-        onToggleDarkMode={handleToggleDarkMode}
       />
 
       {/* Main View Container */}
@@ -104,7 +80,6 @@ export default function App() {
       <Footer
         setCurrentView={setCurrentView}
         onOpenConsultation={() => handleOpenConsultation('')}
-        isDarkMode={isDarkMode}
       />
 
       {/* Interactive Free Consultation Popup Modal */}

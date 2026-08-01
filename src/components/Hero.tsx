@@ -11,7 +11,8 @@ import {
   ShoppingBag,
   ShieldCheck,
   Building2,
-  Users
+  Users,
+  ChevronDown
 } from 'lucide-react';
 
 interface HeroProps {
@@ -21,7 +22,7 @@ interface HeroProps {
 
 export const Hero: React.FC<HeroProps> = ({ setCurrentView, onOpenConsultation }) => {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white pt-12 sm:pt-16 pb-20 sm:pb-28">
+    <section className="relative overflow-hidden bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white pt-12 sm:pt-16 pb-16 sm:pb-24">
       
       {/* Background Subtle Mesh Glows */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full overflow-hidden pointer-events-none opacity-20">
@@ -32,7 +33,7 @@ export const Hero: React.FC<HeroProps> = ({ setCurrentView, onOpenConsultation }
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Top Location & Credibility Badge */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mb-6 text-center">
+        <div className="flex flex-wrap items-center justify-center gap-2 mb-6 text-center animate-fade-in-up">
           <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-400/20 text-blue-300 px-3.5 py-1.5 rounded-full text-xs font-semibold backdrop-blur-xs">
             <MapPin className="w-3.5 h-3.5 text-blue-400" />
             <span>Vadodara On-Site Services & Worldwide Web Solutions</span>
@@ -44,7 +45,7 @@ export const Hero: React.FC<HeroProps> = ({ setCurrentView, onOpenConsultation }
         </div>
 
         {/* Hero Heading & Subtitle */}
-        <div className="max-w-4xl mx-auto text-center space-y-6">
+        <div className="max-w-4xl mx-auto text-center space-y-6 animate-fade-in-up">
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.15]">
             Professional Technology Solutions for{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-300 to-white">
@@ -60,15 +61,15 @@ export const Hero: React.FC<HeroProps> = ({ setCurrentView, onOpenConsultation }
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto">
             <button
               onClick={onOpenConsultation}
-              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold text-base px-7 py-3.5 rounded-xl shadow-lg shadow-blue-600/25 transition-all transform active:scale-95 flex items-center justify-center gap-2.5 cursor-pointer"
+              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold text-base px-7 py-3.5 rounded-xl shadow-lg shadow-blue-600/25 transition-all transform hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2.5 cursor-pointer"
             >
-              <PhoneCall className="w-5 h-5 text-blue-200" />
+              <PhoneCall className="w-5 h-5 text-blue-200 animate-pulse" />
               <span>Get Free Consultation</span>
             </button>
 
             <button
               onClick={() => setCurrentView('contact')}
-              className="w-full sm:w-auto bg-slate-800/90 hover:bg-slate-800 text-slate-200 border border-slate-700/80 font-semibold text-base px-7 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto bg-slate-800/90 hover:bg-slate-800 text-slate-200 border border-slate-700/80 font-semibold text-base px-7 py-3.5 rounded-xl transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>Contact Us</span>
               <ArrowRight className="w-4 h-4 text-slate-400" />
@@ -76,13 +77,13 @@ export const Hero: React.FC<HeroProps> = ({ setCurrentView, onOpenConsultation }
           </div>
         </div>
 
-        {/* 3 Core Pillar Feature Cards (Web, Computer, Networking, Store) */}
+        {/* 4 Core Pillar Feature Cards */}
         <div className="mt-14 sm:mt-18 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
           
           {/* Card 1: Web Solutions */}
           <div 
             onClick={() => setCurrentView('services')}
-            className="group bg-slate-800/60 hover:bg-slate-800/90 border border-slate-700/70 hover:border-blue-500/50 p-5 rounded-2xl transition-all duration-200 backdrop-blur-xs cursor-pointer flex flex-col justify-between"
+            className="group bg-slate-800/60 hover:bg-slate-800/90 border border-slate-700/70 hover:border-blue-500/50 p-5 rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl backdrop-blur-xs cursor-pointer flex flex-col justify-between"
           >
             <div>
               <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
@@ -105,7 +106,7 @@ export const Hero: React.FC<HeroProps> = ({ setCurrentView, onOpenConsultation }
           {/* Card 2: Computer Solutions */}
           <div 
             onClick={() => setCurrentView('services')}
-            className="group bg-slate-800/60 hover:bg-slate-800/90 border border-slate-700/70 hover:border-blue-500/50 p-5 rounded-2xl transition-all duration-200 backdrop-blur-xs cursor-pointer flex flex-col justify-between"
+            className="group bg-slate-800/60 hover:bg-slate-800/90 border border-slate-700/70 hover:border-blue-500/50 p-5 rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl backdrop-blur-xs cursor-pointer flex flex-col justify-between"
           >
             <div>
               <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
@@ -128,7 +129,7 @@ export const Hero: React.FC<HeroProps> = ({ setCurrentView, onOpenConsultation }
           {/* Card 3: Networking */}
           <div 
             onClick={() => setCurrentView('services')}
-            className="group bg-slate-800/60 hover:bg-slate-800/90 border border-slate-700/70 hover:border-blue-500/50 p-5 rounded-2xl transition-all duration-200 backdrop-blur-xs cursor-pointer flex flex-col justify-between"
+            className="group bg-slate-800/60 hover:bg-slate-800/90 border border-slate-700/70 hover:border-blue-500/50 p-5 rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl backdrop-blur-xs cursor-pointer flex flex-col justify-between"
           >
             <div>
               <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
@@ -151,7 +152,7 @@ export const Hero: React.FC<HeroProps> = ({ setCurrentView, onOpenConsultation }
           {/* Card 4: Tech Store */}
           <div 
             onClick={() => setCurrentView('store')}
-            className="group bg-slate-800/60 hover:bg-slate-800/90 border border-slate-700/70 hover:border-blue-500/50 p-5 rounded-2xl transition-all duration-200 backdrop-blur-xs cursor-pointer flex flex-col justify-between"
+            className="group bg-slate-800/60 hover:bg-slate-800/90 border border-slate-700/70 hover:border-blue-500/50 p-5 rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl backdrop-blur-xs cursor-pointer flex flex-col justify-between"
           >
             <div>
               <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
@@ -191,6 +192,22 @@ export const Hero: React.FC<HeroProps> = ({ setCurrentView, onOpenConsultation }
             <MapPin className="w-4 h-4 text-amber-400 shrink-0" />
             <span>Local Vadodara Doorstep Service</span>
           </div>
+        </div>
+
+        {/* Animated Scroll-Down Indicator */}
+        <div className="mt-10 flex justify-center">
+          <button
+            onClick={() => {
+              window.scrollTo({ top: window.innerHeight * 0.7, behavior: 'smooth' });
+            }}
+            className="group flex flex-col items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer"
+            aria-label="Scroll down to services"
+          >
+            <span className="tracking-wider uppercase text-[11px] font-bold group-hover:text-blue-300 transition-colors">Scroll Down</span>
+            <div className="w-8 h-8 rounded-full bg-slate-800/90 border border-slate-700/80 flex items-center justify-center animate-bounce-slow group-hover:border-blue-500/60 group-hover:bg-blue-600/20 transition-all shadow-md">
+              <ChevronDown className="w-4 h-4 text-blue-400 group-hover:text-blue-300" />
+            </div>
+          </button>
         </div>
 
       </div>
