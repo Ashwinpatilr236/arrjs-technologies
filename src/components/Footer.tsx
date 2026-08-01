@@ -10,7 +10,8 @@ import {
   Linkedin, 
   ShieldCheck, 
   ExternalLink,
-  ArrowRight
+  ArrowRight,
+  PhoneCall
 } from 'lucide-react';
 
 interface FooterProps {
@@ -28,104 +29,113 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentView, onOpenConsultati
     <footer className="bg-slate-900 text-slate-300 pt-16 pb-12 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Top Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-800">
+        {/* Top 12-Column Balanced Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 sm:gap-10 pb-12 border-b border-slate-800">
           
-          {/* Column 1: Brand & Positioning */}
-          <div className="lg:col-span-2 space-y-4">
-            <div className="bg-white px-3.5 py-2 rounded-xl shadow-md border border-slate-200/20 inline-flex items-center group cursor-pointer hover:scale-[1.02] transition-transform">
+          {/* Column 1: Brand & Positioning (4 cols) */}
+          <div className="lg:col-span-4 space-y-4">
+            {/* Bigger & Premium Logo Badge */}
+            <div 
+              onClick={() => navTo('home')}
+              className="bg-white px-4 py-2.5 rounded-2xl shadow-lg border border-slate-100 inline-flex items-center group cursor-pointer hover:scale-105 transition-all duration-300"
+            >
               <img 
                 src="/assets/logo/logo.svg" 
                 alt="ARRJS Technologies Logo" 
-                className="h-8 sm:h-10 w-auto object-contain"
+                className="h-10 sm:h-12 w-auto object-contain"
               />
             </div>
             
-            <p className="text-slate-400 text-sm leading-relaxed max-w-md">
+            <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
               ARRJS Technologies provides practical, dependable technology solutions for individuals, homes, and small businesses. From custom website development to home computer repair and networking in Vadodara.
             </p>
 
-            <div className="pt-2">
+            <div>
               <div className="inline-flex items-center gap-2 bg-slate-800/90 border border-slate-700/80 px-3.5 py-2 rounded-xl text-xs text-slate-200 shadow-xs">
-                <MapPin className="w-4 h-4 text-blue-400 shrink-0" />
+                <MapPin className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>Home & On-Site Tech Service available in <strong>Vadodara, Gujarat</strong></span>
               </div>
             </div>
 
-            {/* Social Media Links */}
+            {/* Real Colorful Brand Social Media Badges */}
             <div className="pt-2">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Connect With Us</p>
-              <div className="flex items-center gap-3">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">Connect With Us</p>
+              <div className="flex flex-wrap items-center gap-2.5">
                 <a 
                   href="https://facebook.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 hover:bg-blue-600 hover:text-white text-slate-400 flex items-center justify-center transition-all shadow-xs"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#1877F2] text-white text-xs font-bold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
                   aria-label="Facebook"
                 >
                   <Facebook className="w-4 h-4" />
+                  <span>Facebook</span>
                 </a>
+
                 <a 
                   href="https://instagram.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 hover:bg-pink-600 hover:text-white text-slate-400 flex items-center justify-center transition-all shadow-xs"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white text-xs font-bold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
                   aria-label="Instagram"
                 >
                   <Instagram className="w-4 h-4" />
+                  <span>Instagram</span>
                 </a>
+
                 <a 
                   href="https://linkedin.com" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 hover:bg-blue-500 hover:text-white text-slate-400 flex items-center justify-center transition-all shadow-xs"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#0A66C2] text-white text-xs font-bold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
                   aria-label="LinkedIn"
                 >
                   <Linkedin className="w-4 h-4" />
+                  <span>LinkedIn</span>
                 </a>
               </div>
             </div>
           </div>
 
-          {/* Column 2: Quick Links */}
-          <div className="space-y-3">
+          {/* Column 2: Navigation Links (2 cols) */}
+          <div className="lg:col-span-2 space-y-3">
             <p className="text-sm font-bold text-white uppercase tracking-wider">Navigation</p>
             <ul className="space-y-2 text-sm">
               <li>
-                <button onClick={() => navTo('home')} className="text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-1.5 font-medium">
+                <button onClick={() => navTo('home')} className="text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-1.5 font-medium cursor-pointer">
                   <ArrowRight className="w-3 h-3 text-slate-500" /> Home
                 </button>
               </li>
               <li>
-                <button onClick={() => navTo('services')} className="text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-1.5 font-medium">
+                <button onClick={() => navTo('services')} className="text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-1.5 font-medium cursor-pointer">
                   <ArrowRight className="w-3 h-3 text-slate-500" /> Services
                 </button>
               </li>
               <li>
-                <button onClick={() => navTo('store')} className="text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-1.5 font-medium">
+                <button onClick={() => navTo('store')} className="text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-1.5 font-medium cursor-pointer">
                   <ArrowRight className="w-3 h-3 text-slate-500" /> Tech Store
                 </button>
               </li>
               <li>
-                <button onClick={() => navTo('portfolio')} className="text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-1.5 font-medium">
+                <button onClick={() => navTo('portfolio')} className="text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-1.5 font-medium cursor-pointer">
                   <ArrowRight className="w-3 h-3 text-slate-500" /> Demo Portfolio
                 </button>
               </li>
               <li>
-                <button onClick={() => navTo('about')} className="text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-1.5 font-medium">
+                <button onClick={() => navTo('about')} className="text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-1.5 font-medium cursor-pointer">
                   <ArrowRight className="w-3 h-3 text-slate-500" /> About Us
                 </button>
               </li>
               <li>
-                <button onClick={() => navTo('contact')} className="text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-1.5 font-medium">
+                <button onClick={() => navTo('contact')} className="text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-1.5 font-medium cursor-pointer">
                   <ArrowRight className="w-3 h-3 text-slate-500" /> Contact Us
                 </button>
               </li>
             </ul>
           </div>
 
-          {/* Column 3: Services Summary */}
-          <div className="space-y-3">
+          {/* Column 3: Services Summary (3 cols) */}
+          <div className="lg:col-span-3 space-y-3">
             <p className="text-sm font-bold text-white uppercase tracking-wider">Our Solutions</p>
             <ul className="space-y-2 text-sm text-slate-400">
               <li className="flex items-center gap-2">
@@ -155,50 +165,59 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentView, onOpenConsultati
             </ul>
           </div>
 
-          {/* Column 4: Official Contact & Lead Action */}
-          <div className="space-y-4">
+          {/* Column 4: Direct Contact Cards (3 cols - Ample Width) */}
+          <div className="lg:col-span-3 space-y-3">
             <p className="text-sm font-bold text-white uppercase tracking-wider">Direct Contact</p>
-            <div className="space-y-2.5 text-xs">
-              <div className="flex items-start gap-2.5 bg-slate-800/80 p-3 rounded-xl border border-slate-700/70 shadow-xs">
-                <Mail className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-slate-400 font-medium text-[11px]">Official Email</p>
-                  <a href="mailto:arrjstechnologies@gmail.com" className="text-white hover:text-blue-300 font-semibold break-all">
-                    arrjstechnologies@gmail.com
-                  </a>
+            
+            <div className="space-y-2.5">
+              {/* Email Card */}
+              <a 
+                href="mailto:arrjstechnologies@gmail.com"
+                className="group flex items-center gap-3 bg-slate-800/90 hover:bg-slate-800 p-3 rounded-2xl border border-slate-700/80 hover:border-blue-500/50 transition-all shadow-sm cursor-pointer"
+              >
+                <div className="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Mail className="w-4.5 h-4.5" />
                 </div>
-              </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-slate-400 text-[11px] font-semibold">Official Email</p>
+                  <p className="text-white hover:text-blue-300 font-bold text-xs truncate">arrjstechnologies@gmail.com</p>
+                </div>
+              </a>
 
-              <div className="flex items-start gap-2.5 bg-slate-800/80 p-3 rounded-xl border border-slate-700/70 shadow-xs">
-                <Globe className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-slate-400 font-medium text-[11px]">Official Website</p>
-                  <a 
-                    href="https://arrjs-technologies.vercel.app/" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-white hover:text-blue-300 font-semibold flex items-center gap-1 break-all"
-                  >
-                    arrjs-technologies.vercel.app
-                    <ExternalLink className="w-3 h-3 text-slate-400 shrink-0" />
-                  </a>
+              {/* Website Card */}
+              <a 
+                href="https://arrjs-technologies.vercel.app/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="group flex items-center gap-3 bg-slate-800/90 hover:bg-slate-800 p-3 rounded-2xl border border-slate-700/80 hover:border-blue-500/50 transition-all shadow-sm cursor-pointer"
+              >
+                <div className="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Globe className="w-4.5 h-4.5" />
                 </div>
-              </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-slate-400 text-[11px] font-semibold">Official Website</p>
+                  <p className="text-white hover:text-blue-300 font-bold text-xs truncate flex items-center justify-between gap-1">
+                    <span>arrjs-technologies.vercel.app</span>
+                    <ExternalLink className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  </p>
+                </div>
+              </a>
             </div>
 
             <button
               onClick={onOpenConsultation}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-xs transition-all hover:scale-[1.02] text-center cursor-pointer"
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-bold text-xs sm:text-sm py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 text-center cursor-pointer flex items-center justify-center gap-2 mt-2"
             >
-              Request Free Consultation
+              <PhoneCall className="w-4 h-4 text-blue-200" />
+              <span>Request Free Consultation</span>
             </button>
           </div>
 
         </div>
 
-        {/* Affiliate Disclosure & Transparent Guarantees */}
-        <div className="mt-8 pt-6 border-t border-slate-800/80 bg-slate-950/40 p-4 rounded-2xl border border-slate-800/60 text-xs text-slate-400 space-y-2 shadow-xs">
-          <div className="flex items-center gap-2 text-slate-200 font-semibold">
+        {/* Affiliate Disclosure & Service Clarity */}
+        <div className="mt-8 pt-6 border-t border-slate-800/80 bg-slate-950/40 p-4.5 rounded-2xl border border-slate-800/60 text-xs text-slate-400 space-y-2 shadow-xs">
+          <div className="flex items-center gap-2 text-slate-200 font-bold">
             <ShieldCheck className="w-4 h-4 text-blue-400 shrink-0" />
             <span>ARRJS Tech Store Affiliate Partner Disclosure & Service Clarity</span>
           </div>
@@ -210,15 +229,15 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentView, onOpenConsultati
           </p>
         </div>
 
-        {/* Bottom Copyright */}
+        {/* Bottom Copyright & Quick Links */}
         <div className="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
           <p>© {new Date().getFullYear()} ARRJS Technologies. All rights reserved.</p>
-          <div className="flex items-center gap-4 text-slate-400">
-            <button onClick={() => navTo('about')} className="hover:text-slate-200">About</button>
+          <div className="flex items-center gap-4 text-slate-400 font-medium">
+            <button onClick={() => navTo('about')} className="hover:text-slate-200 transition-colors cursor-pointer">About</button>
             <span>•</span>
-            <button onClick={() => navTo('services')} className="hover:text-slate-200">Vadodara Services</button>
+            <button onClick={() => navTo('services')} className="hover:text-slate-200 transition-colors cursor-pointer">Vadodara Services</button>
             <span>•</span>
-            <button onClick={() => navTo('contact')} className="hover:text-slate-200">Contact</button>
+            <button onClick={() => navTo('contact')} className="hover:text-slate-200 transition-colors cursor-pointer">Contact</button>
           </div>
         </div>
 
