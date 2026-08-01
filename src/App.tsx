@@ -49,12 +49,16 @@ export default function App() {
     };
   }, []);
 
-  // Update SEO meta tags on each view change
+  // Scroll to top ONLY when the view/page changes — NOT when siteConfig fields are updated
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentView]);
+
+  // Update SEO meta on view or config change — no scroll here
   useEffect(() => {
     if (currentView !== 'admin') {
       updatePageSEO(siteConfig, currentView);
     }
-    window.scrollTo(0, 0);
   }, [currentView, siteConfig]);
 
   const handleOpenConsultation = (serviceName: string = '') => {
