@@ -193,7 +193,7 @@ export const Header: React.FC<HeaderProps> = ({
               <span>Get Free Consultation</span>
             </button>
             <div className="text-center text-xs text-slate-500 font-medium pt-1">
-              📍 Vadodara Home Service: Mon - Sat (9 AM - 7 PM)
+              📍 {siteConfig.locationCity || 'Vadodara'} Home Service: {siteConfig.operatingHours || 'Mon - Sat (9 AM - 7 PM)'}
             </div>
           </div>
         </div>

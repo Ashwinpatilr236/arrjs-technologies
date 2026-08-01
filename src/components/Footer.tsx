@@ -1,5 +1,6 @@
 import React from 'react';
 import { PageView } from '../types';
+import { useSiteConfig } from '../hooks/useSiteConfig';
 import { 
   Laptop, 
   Mail, 
@@ -21,6 +22,8 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ setCurrentView, onOpenConsultation }) => {
+  const siteConfig = useSiteConfig();
+
   const navTo = (view: PageView) => {
     setCurrentView(view);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -48,7 +51,7 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentView, onOpenConsultati
             </div>
             
             <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
-              ARRJS Technologies provides practical, dependable technology solutions for individuals, homes, and small businesses. From custom website development to home computer repair and networking in Vadodara.
+              {siteConfig.footerDescription || 'ARRJS Technologies provides practical, dependable technology solutions for individuals, homes, and small businesses. From custom website development to home computer repair and networking in Vadodara.'}
             </p>
 
             <div>
@@ -63,7 +66,7 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentView, onOpenConsultati
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">Connect With Us</p>
               <div className="flex flex-wrap items-center gap-2.5">
                 <a 
-                  href="https://facebook.com" 
+                  href={siteConfig.facebookUrl || 'https://facebook.com'} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#1877F2] text-white text-xs font-bold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
@@ -74,7 +77,7 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentView, onOpenConsultati
                 </a>
 
                 <a 
-                  href="https://instagram.com" 
+                  href={siteConfig.instagramUrl || 'https://instagram.com'} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white text-xs font-bold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
@@ -85,7 +88,7 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentView, onOpenConsultati
                 </a>
 
                 <a 
-                  href="https://linkedin.com" 
+                  href={siteConfig.linkedinUrl || 'https://linkedin.com'} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#0A66C2] text-white text-xs font-bold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
@@ -173,7 +176,7 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentView, onOpenConsultati
             <div className="space-y-2.5">
               {/* Email Card */}
               <a 
-                href="mailto:arrjstechnologies@gmail.com"
+                href={`mailto:${siteConfig.officialEmail || 'arrjstechnologies@gmail.com'}`}
                 className="group flex items-center gap-3 bg-slate-800/90 hover:bg-slate-800 p-3 rounded-2xl border border-slate-700/80 hover:border-blue-500/50 transition-all shadow-sm cursor-pointer"
               >
                 <div className="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
@@ -181,7 +184,7 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentView, onOpenConsultati
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-slate-400 text-[11px] font-semibold">Official Email</p>
-                  <p className="text-white hover:text-blue-300 font-bold text-xs truncate">arrjstechnologies@gmail.com</p>
+                  <p className="text-white hover:text-blue-300 font-bold text-xs truncate">{siteConfig.officialEmail || 'arrjstechnologies@gmail.com'}</p>
                 </div>
               </a>
 
@@ -232,7 +235,7 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentView, onOpenConsultati
 
         {/* Bottom Copyright & Quick Links */}
         <div className="mt-5 pt-4 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-3">
-          <p>© {new Date().getFullYear()} ARRJS Technologies. All rights reserved.</p>
+          <p>{siteConfig.copyrightText || `© ${new Date().getFullYear()} ARRJS Technologies. All rights reserved.`}</p>
           <div className="flex items-center gap-4 text-slate-400 font-medium">
             <button onClick={() => navTo('about')} className="hover:text-slate-200 transition-colors cursor-pointer">About</button>
             <span>•</span>

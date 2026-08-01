@@ -335,11 +335,22 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     alt={product.title} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
                   />
-                  {product.badge && (
-                    <span className="absolute top-2 left-2 bg-slate-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
-                      {product.badge}
-                    </span>
-                  )}
+                  {/* Multi-badge support */}
+                  {(() => {
+                    const tagList = (product.badges && product.badges.length > 0)
+                      ? product.badges
+                      : (product.badge ? product.badge.split(',').map((b: string) => b.trim()).filter(Boolean) : []);
+                    if (!tagList.length) return null;
+                    return (
+                      <div className="absolute top-2 left-2 flex flex-col gap-1">
+                        {tagList.map((tag: string, i: number) => (
+                          <span key={i} className="bg-slate-900/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 <div className="p-4 space-y-2">

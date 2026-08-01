@@ -1,5 +1,6 @@
 import React from 'react';
 import { PageView } from '../types';
+import { useSiteConfig } from '../hooks/useSiteConfig';
 import { 
   Building2, 
   CheckCircle2, 
@@ -19,6 +20,7 @@ interface AboutViewProps {
 }
 
 export const AboutView: React.FC<AboutViewProps> = ({ setCurrentView, onOpenConsultation }) => {
+  const siteConfig = useSiteConfig();
   return (
     <div className="space-y-12 pb-16">
       
@@ -136,10 +138,10 @@ export const AboutView: React.FC<AboutViewProps> = ({ setCurrentView, onOpenCons
               Get Free Consultation
             </button>
             <a
-              href="mailto:arrjstechnologies@gmail.com"
+              href={`mailto:${siteConfig.officialEmail || 'arrjstechnologies@gmail.com'}`}
               className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold px-6 py-3 rounded-xl transition-colors flex items-center gap-2"
             >
-              <Mail className="w-4 h-4 text-blue-400" /> arrjstechnologies@gmail.com
+              <Mail className="w-4 h-4 text-blue-400" /> {siteConfig.officialEmail || 'arrjstechnologies@gmail.com'}
             </a>
           </div>
         </div>
