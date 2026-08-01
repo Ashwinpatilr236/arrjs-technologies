@@ -1,126 +1,229 @@
-import { useEffect, useState } from 'react';
-import { Cpu, MapPin, Mail, ArrowUp, Phone, MessageCircle } from 'lucide-react';
-import { Link } from '../lib/router';
-import { cms } from '../lib/cms';
+import React from 'react';
+import { PageView } from '../types';
+import { 
+  Laptop, 
+  Mail, 
+  Globe, 
+  MapPin, 
+  Facebook, 
+  Instagram, 
+  Linkedin, 
+  ShieldCheck, 
+  ExternalLink,
+  ArrowRight
+} from 'lucide-react';
 
-const cols = [
-  {
-    title: 'Services',
-    links: [
-      { label: 'PC Consultation & Build', to: '/services' },
-      { label: 'Website Development', to: '/services' },
-      { label: 'Business Setup', to: '/services' },
-      { label: 'AI Chatbot Development', to: '/services' },
-      { label: 'IT Support & AMC', to: '/services' },
-    ],
-  },
-  {
-    title: 'Store',
-    links: [
-      { label: 'Excel Templates', to: '/store' },
-      { label: 'React Templates', to: '/store' },
-      { label: 'Next.js Templates', to: '/store' },
-      { label: 'Resume Templates', to: '/store' },
-      { label: 'Free Downloads', to: '/store' },
-    ],
-  },
-  {
-    title: 'Company',
-    links: [
-      { label: 'Portfolio', to: '/portfolio' },
-      { label: 'About', to: '/about' },
-      { label: 'Blog', to: '/blog' },
-      { label: 'Contact', to: '/contact' },
-    ],
-  },
-  {
-    title: 'Legal',
-    links: [
-      { label: 'Privacy Policy', to: '#' },
-      { label: 'Terms of Service', to: '#' },
-      { label: 'Refund Policy', to: '#' },
-    ],
-  },
-];
+interface FooterProps {
+  setCurrentView: (view: PageView) => void;
+  onOpenConsultation: () => void;
+}
 
-export default function Footer() {
-  const [settings, setSettings] = useState(() => cms.getSiteSettings());
-
-  useEffect(() => {
-    const sync = () => setSettings(cms.getSiteSettings());
-    window.addEventListener('cms_settings_updated', sync);
-    return () => window.removeEventListener('cms_settings_updated', sync);
-  }, []);
-
-  const cleanWaNumber = settings.whatsappNumber.replace(/[^0-9]/g, '');
-  const waUrl = `https://wa.me/${cleanWaNumber || '919876543210'}`;
+export const Footer: React.FC<FooterProps> = ({ setCurrentView, onOpenConsultation }) => {
+  const navTo = (view: PageView) => {
+    setCurrentView(view);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
-    <footer className="relative border-t border-ink-100 bg-ink-50/50 dark:border-white/10 dark:bg-ink-950">
-      <div className="container-page py-14">
-        <div className="grid grid-cols-2 gap-10 md:grid-cols-3 lg:grid-cols-6">
-          <div className="col-span-2 lg:col-span-2">
-            <Link to="/" className="flex items-center gap-2.5">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-violet-600 text-white">
-                <Cpu className="h-5 w-5" strokeWidth={2.5} />
+    <footer className="bg-slate-900 text-slate-300 pt-16 pb-12 border-t border-slate-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Top Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-800">
+          
+          {/* Column 1: Brand & Positioning */}
+          <div className="lg:col-span-2 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md">
+                <Laptop className="w-5 h-5 text-blue-200" />
+              </div>
+              <span className="font-bold text-xl text-white tracking-tight">
+                ARRJS <span className="text-blue-400">Technologies</span>
               </span>
-              <span className="font-display text-lg font-bold text-ink-900 dark:text-white">
-                ARRJS<span className="text-brand-500 dark:text-brand-400">.</span>
-              </span>
-            </Link>
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-ink-600 dark:text-ink-400">
-              Building Technology That Works For Everyone. Technology solutions company based in
-              Vadodara, serving all of India remotely.
+            </div>
+            
+            <p className="text-slate-400 text-sm leading-relaxed max-w-md">
+              ARRJS Technologies provides practical, dependable technology solutions for individuals, homes, and small businesses. From custom website development to home computer repair and networking in Vadodara.
             </p>
-            <div className="mt-5 space-y-2 text-sm text-ink-600 dark:text-ink-300">
-              <p className="inline-flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-brand-500" /> {settings.contactAddress}
-              </p>
-              <a href={`mailto:${settings.contactEmail}`} className="flex items-center gap-2 transition-colors hover:text-brand-600 dark:hover:text-brand-300">
-                <Mail className="h-4 w-4 text-brand-500" /> {settings.contactEmail}
-              </a>
-              <a href={`tel:${settings.contactPhone}`} className="flex items-center gap-2 transition-colors hover:text-brand-600 dark:hover:text-brand-300">
-                <Phone className="h-4 w-4 text-brand-500" /> {settings.contactPhone}
-              </a>
-              <a href={waUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 transition-colors hover:text-brand-600 dark:hover:text-brand-300">
-                <MessageCircle className="h-4 w-4 text-brand-500" /> WhatsApp Us
-              </a>
+
+            <div className="pt-2">
+              <div className="inline-flex items-center gap-2 bg-slate-800/80 border border-slate-700/80 px-3.5 py-2 rounded-xl text-xs text-slate-300">
+                <MapPin className="w-4 h-4 text-blue-400 shrink-0" />
+                <span>Home & On-Site Tech Service available in <strong>Vadodara, Gujarat</strong></span>
+              </div>
+            </div>
+
+            {/* Social Media Links */}
+            <div className="pt-2">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Connect With Us</p>
+              <div className="flex items-center gap-3">
+                <a 
+                  href="https://facebook.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-9 h-9 rounded-lg bg-slate-800 hover:bg-blue-600 text-slate-400 hover:text-white flex items-center justify-center transition-all"
+                  aria-label="Facebook"
+                >
+                  <Facebook className="w-4 h-4" />
+                </a>
+                <a 
+                  href="https://instagram.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-9 h-9 rounded-lg bg-slate-800 hover:bg-pink-600 text-slate-400 hover:text-white flex items-center justify-center transition-all"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="w-4 h-4" />
+                </a>
+                <a 
+                  href="https://linkedin.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-9 h-9 rounded-lg bg-slate-800 hover:bg-blue-500 text-slate-400 hover:text-white flex items-center justify-center transition-all"
+                  aria-label="LinkedIn"
+                >
+                  <Linkedin className="w-4 h-4" />
+                </a>
+              </div>
             </div>
           </div>
 
-          {cols.map((c) => (
-            <div key={c.title}>
-              <h4 className="text-xs font-semibold uppercase tracking-widest text-ink-500 dark:text-ink-400">
-                {c.title}
-              </h4>
-              <ul className="mt-4 space-y-2.5">
-                {c.links.map((l) => (
-                  <li key={l.label}>
-                    {l.to.startsWith('#') ? (
-                      <a href={l.to} className="text-sm text-ink-600 transition-colors hover:text-brand-600 dark:text-ink-300 dark:hover:text-brand-300">
-                        {l.label}
-                      </a>
-                    ) : (
-                      <Link to={l.to} className="text-sm text-ink-600 transition-colors hover:text-brand-600 dark:text-ink-300 dark:hover:text-brand-300">
-                        {l.label}
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
+          {/* Column 2: Quick Links */}
+          <div className="space-y-3">
+            <p className="text-sm font-bold text-white uppercase tracking-wider">Navigation</p>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <button onClick={() => navTo('home')} className="text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-1.5">
+                  <ArrowRight className="w-3 h-3 text-slate-600" /> Home
+                </button>
+              </li>
+              <li>
+                <button onClick={() => navTo('services')} className="text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-1.5">
+                  <ArrowRight className="w-3 h-3 text-slate-600" /> Services
+                </button>
+              </li>
+              <li>
+                <button onClick={() => navTo('store')} className="text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-1.5">
+                  <ArrowRight className="w-3 h-3 text-slate-600" /> Tech Store
+                </button>
+              </li>
+              <li>
+                <button onClick={() => navTo('portfolio')} className="text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-1.5">
+                  <ArrowRight className="w-3 h-3 text-slate-600" /> Demo Portfolio
+                </button>
+              </li>
+              <li>
+                <button onClick={() => navTo('about')} className="text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-1.5">
+                  <ArrowRight className="w-3 h-3 text-slate-600" /> About Us
+                </button>
+              </li>
+              <li>
+                <button onClick={() => navTo('contact')} className="text-slate-400 hover:text-blue-400 transition-colors flex items-center gap-1.5">
+                  <ArrowRight className="w-3 h-3 text-slate-600" /> Contact Us
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 3: Services Summary */}
+          <div className="space-y-3">
+            <p className="text-sm font-bold text-white uppercase tracking-wider">Our Solutions</p>
+            <ul className="space-y-2 text-sm text-slate-400">
+              <li className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                <span>Website Development</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                <span>Custom PC Build (Vadodara)</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                <span>PC Assembly (Vadodara)</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                <span>Computer Repair & Upgrades</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                <span>Wi-Fi & Router Setup</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                <span>Basic Office Networking</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 4: Official Contact & Lead Action */}
+          <div className="space-y-4">
+            <p className="text-sm font-bold text-white uppercase tracking-wider">Direct Contact</p>
+            <div className="space-y-2.5 text-xs text-slate-300">
+              <div className="flex items-start gap-2.5 bg-slate-800/50 p-3 rounded-xl border border-slate-800">
+                <Mail className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-slate-400 font-medium text-[11px]">Official Email</p>
+                  <a href="mailto:arrjstechnologies@gmail.com" className="text-white hover:text-blue-300 font-semibold break-all">
+                    arrjstechnologies@gmail.com
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5 bg-slate-800/50 p-3 rounded-xl border border-slate-800">
+                <Globe className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-slate-400 font-medium text-[11px]">Official Website</p>
+                  <a 
+                    href="https://arrjs-technologies.vercel.app/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-white hover:text-blue-300 font-semibold flex items-center gap-1 break-all"
+                  >
+                    arrjs-technologies.vercel.app
+                    <ExternalLink className="w-3 h-3 text-slate-400 shrink-0" />
+                  </a>
+                </div>
+              </div>
             </div>
-          ))}
+
+            <button
+              onClick={onOpenConsultation}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs py-2.5 px-4 rounded-xl shadow-xs transition-colors text-center"
+            >
+              Request Free Consultation
+            </button>
+          </div>
+
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-ink-100 pt-6 sm:flex-row dark:border-white/10">
-          <p className="text-xs text-ink-500 dark:text-ink-500">
-            © {new Date().getFullYear()} ARRJS Technologies. All rights reserved.
+        {/* Affiliate Disclosure & Transparent Guarantees */}
+        <div className="mt-8 pt-6 border-t border-slate-800/80 bg-slate-950/40 p-4 rounded-2xl border border-slate-800/60 text-xs text-slate-400 space-y-2">
+          <div className="flex items-center gap-2 text-slate-200 font-semibold">
+            <ShieldCheck className="w-4 h-4 text-blue-400 shrink-0" />
+            <span>ARRJS Tech Store Affiliate Partner Disclosure & Service Clarity</span>
+          </div>
+          <p className="leading-relaxed">
+            <strong>Affiliate Partner Notice:</strong> Products featured in the ARRJS Tech Store are recommended through trusted affiliate partners such as Amazon and Flipkart. ARRJS Technologies does NOT maintain physical product inventory. Clicking affiliate links redirects you to partner platforms.
           </p>
-          <Link to="/" className="inline-flex items-center gap-1.5 text-xs font-medium text-ink-500 transition-colors hover:text-brand-600 dark:hover:text-brand-300">
-            Back to top <ArrowUp className="h-3.5 w-3.5" />
-          </Link>
+          <p className="leading-relaxed text-slate-400">
+            <strong>Local Service Notice:</strong> Computer repair, custom PC assembly, and networking home/on-site services are strictly available in <strong>Vadodara, Gujarat</strong>. Computer repair service excludes chip-level repairs. Website development and web redesign services are provided remotely for clients across India and globally.
+          </p>
         </div>
+
+        {/* Bottom Copyright */}
+        <div className="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
+          <p>© {new Date().getFullYear()} ARRJS Technologies. All rights reserved.</p>
+          <div className="flex items-center gap-4 text-slate-400">
+            <button onClick={() => navTo('about')} className="hover:text-slate-300">About</button>
+            <span>•</span>
+            <button onClick={() => navTo('services')} className="hover:text-slate-300">Vadodara Services</button>
+            <span>•</span>
+            <button onClick={() => navTo('contact')} className="hover:text-slate-300">Contact</button>
+          </div>
+        </div>
+
       </div>
     </footer>
   );
-}
+};
