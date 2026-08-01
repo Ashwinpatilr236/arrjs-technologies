@@ -104,6 +104,7 @@ export default function App() {
       <Footer
         setCurrentView={setCurrentView}
         onOpenConsultation={() => handleOpenConsultation('')}
+        isDarkMode={isDarkMode}
       />
 
       {/* Interactive Free Consultation Popup Modal */}
